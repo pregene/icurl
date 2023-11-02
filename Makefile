@@ -3,7 +3,7 @@ CFLAGS=
 LIBS=-lcurl
 EXEC=icurl
 SRC= 	src/main.cpp \
-			src/interpark.cpp \
+			src/project.cpp \
 			src/curlget.cpp \
 			src/curlpost.cpp
 
