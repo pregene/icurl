@@ -8,12 +8,6 @@
                         //   libssl.a, libcrypto.a를 포함해야 함.
 #include <iostream>     // for c++ class library
 
-/*!
-  @file
-  @enum    HTTP_STATUS
-  @author  paul@coretrust.com
-  @date    2022-07-11
-*/
 typedef enum {
   CT_HTTP_FAILED  = -1, /*!< 함수 실행 실패시 */
   CT_HTTP_SUCCESS = 0,  /*!< 함수 실행 성공시 */
@@ -120,166 +114,28 @@ typedef enum {
   CT_HTTP_STATUS_MAX,   /*!< 최대 값 */
 } HTTP_STATUS;
 
-/*!
-  @brief   HTTP 프로토콜 POST, GET 메서드를 사용하여 서버로 부터 받게되는 결과셋을 저장하는 구조체
-  @struct  HTTPDATA
-  @author  paul@coretrust.com
-  @date    2022-07-11
-*/
 typedef struct
 {
     char* response; /*!< HTTP 프로토콜 POST, GET로 서버로 부터 받은 데이터 */
     size_t size;    /*!< HTTP 프로토콜 POST, GET로 서버로 부터 받은 데이터의 크기 */
 } HTTPDATA, *PHTTPDATA;
 
-/**
-  @brief   HTTP 프로토콜 POST를 사용하기 위한 클래스 (HTTP, HTTPS 모두 사용 가능)
-  @class   CTHttpPost
-            + 함수: OpenPostURL()
-            + 함수: GetReturnCode()
-            + 함수: GetData()
-            - 변수: m_nRetCode;
-  @author  paul@coretrust.com
-  @date    2022-07-11
 
-  \code{.cpp}
-    ...
-    int ret = 0;
-    CTHttpPost post;
-    const char* postData = "DATE=2022-07-11&TIME=09:00:00";
-    ret = post.OpenPostURL("https://www.google.co.kr", postData, strlen(postData));
-    if (ret == CT_HTTP_SUCCESS && post.GetReturnCode() == HTTP_RESPONSE_OK)
-    {
-      // success..
-      printf("SIZE=%d\n", post.GetData()->size);
-      printf("DATA=%s\n", post.GetData()->response);
-    }
-    else
-    {
-      // failed
-      printf("HTTP:POST:Failed\n");
-    }
-    ...
-  \endcode
-*/
 class CTHttpPost
 {
 public:
-  /**
-    @brief CTHttpPost 클래스의 생성자
-  */
   CTHttpPost();
-  /**
-    @brief CTHttpPost 클래스의 소멸자
-  */
   ~CTHttpPost();
 
-  /**
-    @brief HTTP 프로토콜 POST 메서드를 호출 함수
-    @param const char* szURL HTTP 또는 HTTPS 프로토콜의 Uniform Resource Locator(URL)
-    @param const char* postData POST 메서드에 대응하는 서버에 전송하려는 데이터(문자열)의 포인터
-    @param int postDataLen POST 메서드에 대응하는 데이터(문자열)의 길이
-    @return 성공시, CT_HTTP_SUCCESS 반환. 실패시, CT_HTTP_FAILED 반환.
-    @author paul@coretrust.com
-    @date 2022-07-11
 
-    @code{.cpp}
-      ...
-      int ret = 0;
-      CTHttpPost post;
-      const char* postData = "DATE=2022-07-11&TIME=09:00:00";
-      ret = post.OpenPostURL("https://www.google.co.kr", postData, strlen(postData));
-      if (ret == CT_HTTP_SUCCESS && post.GetReturnCode() == HTTP_RESPONSE_OK)
-      {
-        // success..
-        printf("SIZE=%d\n", post.GetData()->size);
-        printf("DATA=%s\n", post.GetData()->response);
-      }
-      else
-      {
-        // failed
-        printf("HTTP:POST:Failed\n");
-      }
-      ...
-    @endcode
-  */
   int       OpenPostURL(const char* szURL,
                         const char* postData = NULL,
                         int postDataLen = 0);
-  /**
-    @brief OpenPostURL() 함수 결과로  HTTP 응답 코드를 반환
-    @return HTTP_STATUS의 값
-    @author paul@coretrust.com
-    @date 2022-07-11
-  */
   int       GetReturnCode() {return m_nRetCode;}
-  /**
-    @brief HTTP 프로토콜 POST 메서드를 호출하여 서버로 부터 전송 받은 데이터의 구조체 HTTPDATA의 포인터를 반환한다.
-    @return HTTPDATA 포인터를 반환한다.
-    @author paul@coretrust.com
-    @date 2022-07-11
-
-    @code{.cpp}
-      ...
-      int ret = 0;
-      CTHttpPost post;
-      const char* postData = "DATE=2022-07-11&TIME=09:00:00";
-      ret = post.OpenPostURL("https://www.google.co.kr", postData, strlen(postData));
-      if (ret == CT_HTTP_SUCCESS && post.GetReturnCode() == HTTP_RESPONSE_OK)
-      {
-        // success..
-        printf("SIZE=%d\n", post.GetData()->size); // 전송된 데이터의 길이
-        printf("DATA=%s\n", post.GetData()->response); // 전송된 데이터의 자료 char형 포인터
-      }
-      else
-      {
-        // failed
-        printf("HTTP:POST:Failed\n");
-      }
-      ...
-    @endcode
-  */
   HTTPDATA* GetData()   {return &m_Data;}
-  /**
-    @brief HTTP 프로토콜 POST 메서드를 호출하여 서버로 부터 전송 받은 HTTP Header를 담은 HTTPDATA의 포인터를 반환한다.
-    @return HTTPDATA 포인터를 반환한다.
-    @author paul@coretrust.com
-    @date 2022-07-11
-
-    @code{.cpp}
-      ...
-      int ret = 0;
-      CTHttpPost post;
-      const char* postData = "DATE=2022-07-11&TIME=09:00:00";
-      ret = post.OpenPostURL("https://www.google.co.kr", postData, strlen(postData));
-      if (ret == CT_HTTP_SUCCESS && post.GetReturnCode() == HTTP_RESPONSE_OK)
-      {
-        // success..
-        printf("SIZE=%d\n", post.GetData()->size); // 전송된 데이터의 길이
-        printf("DATA=%s\n", post.GetData()->response); // 전송된 데이터의 자료 char형 포인터
-        printf("HEADER=%s\n", post.GetHeader()->response); // 전송된 HTTP Header
-      }
-      else
-      {
-        // failed
-        printf("HTTP:POST:Failed\n");
-      }
-      ...
-    @endcode
-  */
   HTTPDATA* GetHeader() {return &m_Header;}
-  /**
-    @brief 상속 받은 개체(CTHttpGet)에서 call stack을 줄이기 위해 사용 됨. 직접 사용은 권장하지 않음.
-    @author paul@coretrust.com
-    @date 2022-07-11
-  */
   int       m_nRetCode;
 private:
-  /**
-    @brief HTTP 서버로부터 전송 받은 데이터
-    @author paul@coretrust.com
-    @date 2022-07-11
-  */
   HTTPDATA  m_Data;
   HTTPDATA  m_Header;
 };
