@@ -1,5 +1,5 @@
-#if !defined(__INTERPARK_HACK__)
-#define __INTERPARK_HACK__
+#if !defined(__ICURL_PROJECT__)
+#define __ICURL_PROJECT__
 
 #include <iostream>
 #include <algorithm>
@@ -38,4 +38,4 @@ bool file_exist (const std::string& name);
 
 typedef int (*CASOCKETCB)(void* pclass, int sockfd, int event_type, char* buffer, int bufferlen);
 
-#endif // __INTERPARK_HACK__
+#endif // __ICURL_PROJECT__
