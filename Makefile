@@ -4,8 +4,7 @@ LIBS=-lcurl
 EXEC=icurl
 SRC= 	src/main.cpp \
 			src/project.cpp \
-			src/curlget.cpp \
-			src/curlpost.cpp
+			src/curl_pool.cpp
 
 OS := $(shell uname -s)
 

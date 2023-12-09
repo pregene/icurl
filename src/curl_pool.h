@@ -1,9 +1,12 @@
 #if !defined(__CURL_POOL__)
 #define __CURL_POOL__
 
+#include "project.h"
+#include <curl/curl.h>
+/*
 #include <stdio.h>
 #include <string.h>
-#include <curl/curl.h>
+
 #include <iostream>
 #include <vector>
 #include <list>
@@ -11,6 +14,8 @@
 #include <string>
 
 using namespace std;
+*/
+
 
 typedef struct
 {

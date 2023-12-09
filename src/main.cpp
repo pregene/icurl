@@ -1,5 +1,6 @@
 #include "project.h"
-#include "curlget.h"
+#include "curl_pool.h"
+#include <unistd.h>
 //#include "socket.h"
 
 #define SOCKET_IDX_MAIN     0
@@ -8,7 +9,14 @@
 
 int main(int argc, char* argv[])
 {
-  CTHttpGet main_session;
-  main_session.OpenURL("www.naver.com");
+  CURLSession session;
+  session.OpenURL("https://www.yes24.com");
+
+  RETDATA* pdata = session.GetData();
+  if (pdata)
+  {
+    cout << pdata->response << endl;
+  }
+  pause();
   return 0;
 }
