@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
   printf("[%s:%d]\n", session.GetURL().c_str(), session.GetReturnCode());
 
   printf("%s\n", session.GetHTTPHeader("Content-Type").c_str());
-  printf("%s\n", session.GetBody().c_str());
+  //printf("%s\n", session.GetBody().c_str());
 
   pause();
   return 0;
