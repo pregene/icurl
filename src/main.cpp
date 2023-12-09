@@ -11,16 +11,16 @@ int main(int argc, char* argv[])
 {
   CURLSession session;
   //session.OpenURL("https://www.yes24.com/Main/default.aspx");
-  //session.OpenURL("https://www.interpark.com");
+  session.SetHeaderFile("data/linux_header");
+  session.SetCookieFile("data/cookies.txt");
+  session.OpenURL("https://www.yes24.com/Main/default.aspx");
 
-  /* RETDATA* pdata = session.GetData();
+  RETDATA* pdata = session.GetData();
   if (pdata)
   {
-    cout << pdata->response << endl;
+    //cout << pdata->response << endl;
   }
 
-  */
-  session.SetHeaderFile("data/linux_header");
   pause();
   return 0;
 }

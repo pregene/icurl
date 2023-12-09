@@ -62,6 +62,7 @@ CURLSession::CURLSession() {
   m_nRetCode=0;
   m_verifier = 0;
   m_pfile = 0;
+  m_phl = 0;
   memset(&m_Data, 0, sizeof(RETDATA));
   memset(&m_Header, 0, sizeof(RETDATA));
   Open();
@@ -93,6 +94,10 @@ void    CURLSession::Close()
   if (m_pfile)
     fclose(m_pfile);
   m_pfile = 0;
+
+  if (m_phl)
+    curl_slist_free_all(m_phl);
+  m_phl = 0;
 }
 
 CURL*   CURLSession::GetConnection() {return m_curl;}
@@ -160,6 +165,10 @@ void      CURLSession::Release()
   if (m_pfile)
     fclose(m_pfile);
   m_pfile = 0;
+
+  if (m_phl)
+    curl_slist_free_all(m_phl);
+  m_phl = 0;
 }
 
 int CURLSession::OpenURL(CURL* curl, const char* szURL)
@@ -192,9 +201,14 @@ int CURLSession::OpenURL(CURL* curl, const char* szURL)
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
   }
 
-  /* header set */
+  /* verbose */
+  curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
   res = curl_easy_perform(curl);
+
+  if (!m_cookie.empty())
+    curl_easy_setopt(curl, CURLOPT_COOKIELIST, "FLUSH");
+
   if(res != CURLE_OK)
     fprintf(stderr, "HTTP:GET:FAIL: %s\n",
             curl_easy_strerror(res));
@@ -255,11 +269,33 @@ int       CURLSession::PrepareOption(CURL* curl)
   /* header */
   if (m_arr_headers.size() > 0)
   {
-
+    for (map<string, string>::iterator it = m_arr_headers.begin(); it != m_arr_headers.end(); ++it)
+    {
+      string line = strformat("%s: %s", it->first.c_str(), it->second.c_str());
+      m_phl = curl_slist_append(m_phl, line.c_str());
+    }
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, m_phl);
   }
-  /* input cookie */
-
-  /* output cookie */
+  /* input/output cookie */
+  if (!m_cookie.empty())
+  {
+    cout << m_cookie.c_str() << endl;
+    curl_easy_setopt(curl, CURLOPT_COOKIEFILE, m_cookie.c_str());
+    curl_easy_setopt(curl, CURLOPT_COOKIEJAR, m_cookie.c_str());
+  }
 
   /* output body */
+
+  return 0;
 }
+
+/*
+int       CURLSession::PostOption(CURL* curl)
+{
+  if (!m_cookie.empty())
+  {
+    curl_easy_setopt(curl, CURLOPT_COOKIEJAR, m_cookie.c_str());
+  }
+  return 0;
+}
+*/

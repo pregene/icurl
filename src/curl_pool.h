@@ -64,6 +64,7 @@ public:
 private:
   void      Release();
   int       PrepareOption(CURL* curl);
+  //int       PostOption(CURL* curl);
   int       LoadHeader(string filename);
   int       OpenURL(CURL* curl, const char* szURL);
   int       PostURL(CURL* curl, const char* szURL, const char* postData = NULL, int postDataLen = 0);
@@ -74,7 +75,7 @@ private:
   string    m_url;            // url string
   // query option..
   int       m_verifier;
-  string    m_cookie;         // input filename of cookie
+  string    m_cookie;         // input/output filename of cookie
   string    m_header;         // input filename of header
   string    m_data_file;      // input filename of post data
   string    m_header_file;    // output filename of header
@@ -82,7 +83,8 @@ private:
   // internal header stuff
   map<string, string> m_arr_headers;
   FILE*     m_pfile;
-  
+  struct curl_slist *m_phl;
+
   // response
   string    m_body;           // body string
   // connection.
