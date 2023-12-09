@@ -400,3 +400,81 @@ int       CURLSession::PostOption(CURL* curl)
   return 0;
 }
 */
+
+int       CURLSession::PostURL(const char* szURL, string filename)
+{
+  return PostURL(m_curl, szURL, filename);
+}
+
+int       CURLSession::PostURL(CURL* curl, string filename)
+{
+  CURLcode res;
+  FILE* pfile = NULL;
+
+  if (!curl || !szURL)
+    return -1; // curl handler error..
+               // should call curl_global_init(CURL_GLOBAL_DEFAULT) before this.
+
+  Release();
+  //curl_easy_setopt(curl, CURLOPT_URL, szURL);
+  SetURL(szURL);
+
+  // set POST..
+  curl_easy_setopt(curl, CURLOPT_POST, 1L);
+
+  /*  connection configuration */
+  PrepareOption(curl);
+
+  pFile = fopen(filename.c_str(), "rb");
+  if (!pFile)
+    return -1;
+
+  // set post data..
+  curl_easy_setopt(curl, CURLOPT_READDATA, pFile);
+
+
+  /* return */
+  if (m_data_file.empty())
+  {
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, pool_write_callback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*) this);
+  }
+
+  /* header callback */
+  curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, pool_header_callback);
+  curl_easy_setopt(curl, CURLOPT_HEADERDATA, (void*) this);
+
+  /* https */
+  if (m_verifier == 0)
+  {
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+  }
+
+  /* verbose */
+  curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+
+  res = curl_easy_perform(curl);
+
+  /* cookie writing.. */
+  if (!m_cookie.empty())
+    curl_easy_setopt(curl, CURLOPT_COOKIELIST, "FLUSH");
+
+  if(res != CURLE_OK)
+    fprintf(stderr, "HTTP:POST:FAIL: %s\n",
+            curl_easy_strerror(res));
+
+  /* body file clear */
+  if (m_pfile)
+  {
+    fclose(m_pfile);
+    m_pfile = 0;
+  }
+
+  /* post data file clear */
+  if (pFile)
+    fclose(pFile);
+
+  curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &m_nRetCode);
+  return 0;
+}
