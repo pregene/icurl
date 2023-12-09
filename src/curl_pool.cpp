@@ -58,11 +58,12 @@ size_t pool_header_callback(void *data, size_t size, size_t nmemb, void *userp)
 }
 
 CURLSession::CURLSession() {
-  m_curl = 0;m_port = 0;
+  m_curl = 0; //m_port = 0;
   m_nRetCode=0;
   m_verifier = 0;
   m_verbose = 0;
   m_pfile = 0;
+  m_redirect = 0;
   m_phl = 0;
   memset(&m_Data, 0, sizeof(RETDATA));
   memset(&m_Header, 0, sizeof(RETDATA));
@@ -83,7 +84,7 @@ void    CURLSession::Close()
 {
   if (m_curl)
     curl_easy_cleanup(m_curl);
-  m_port = 0;
+  //m_port = 0;
   m_curl = 0;
   if (m_Data.response)
     free(m_Data.response);
@@ -101,6 +102,7 @@ void    CURLSession::Close()
   m_phl = 0;
 
   m_verbose = 0;
+  m_redirect = 0;
 }
 
 CURL*   CURLSession::GetConnection() {return m_curl;}
@@ -114,9 +116,10 @@ int     CURLSession::SetURL(const char* szURL)
   return 0;
 }
 string  CURLSession::GetURL()  {return m_url;}
+/* deplicated..
 int     CURLSession::GetPort() {return m_port;}
 string  CURLSession::GetHost() {return m_host;}
-
+*/
 // option method..
 int       CURLSession::SetCookieFile(string filename)
 {
@@ -153,6 +156,12 @@ int       CURLSession::SetVerifier(int option)
 int       CURLSession::SetVerbose(int option)
 {
   m_verbose = option;
+  return 0;
+}
+
+int       CURLSession::SetRedirect(int option)
+{
+  m_redirect = option;
   return 0;
 }
 
@@ -376,7 +385,8 @@ int       CURLSession::QueryURL(CURL* curl, FILE* pfile)
     curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
   /* redirect option */
-  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+  if (m_redirect)
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 
   res = curl_easy_perform(curl);
 

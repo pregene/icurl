@@ -37,36 +37,37 @@ public:
   CURL*     Open();
   void      Close();
   CURL*     GetConnection();
-  int       SetURL(const char* szURL);
+  string    GetURL();
+  //int       GetPort();  // deplicated..
+  //string    GetHost();  // deplicated..
+  int       GetReturnCode() {return m_nRetCode;}
+  RETDATA*  GetData() {return &m_Data;}
+  RETDATA*  GetHeader() {return &m_Header;}
+  string    GetHeaderString() {string ret = m_Header.response; return ret;}
+
+  // set curl option..
   int       SetCookieFile(string filename);
   int       SetHeaderFile(string filename);
   int       SetWriteFile(string filename);
   int       SetDataFile(string filename);
   int       SetHeaderOut(string filename);
   int       SetVerbose(int option);
-  string    GetURL();
-  int       GetPort();
-  string    GetHost();
-  int       GetReturnCode() {return m_nRetCode;}
-  RETDATA*  GetData() {return &m_Data;}
-  RETDATA*  GetHeader() {return &m_Header;}
   int       SetVerifier(int option);
+  int       SetRedirect(int option);
 
   // HTTP protocol methods..
   int       SetHTTPHeader(string key, string value);
-
-  // test codes..
-
 
   // method..
   int       OpenURL(const char* szURL);
   int       PostURL(const char* szURL, const char* postData = NULL, int postDataLen = 0);
   int       PostURL(const char* szURL, string filename);
-  int       m_nRetCode;
+
 private:
   void      Release();
   int       PrepareOption(CURL* curl);
   //int       PostOption(CURL* curl);
+  int       SetURL(const char* szURL);
   int       LoadHeader(string filename);
   int       OpenURL(CURL* curl, const char* szURL);
   int       PostURL(CURL* curl, const char* szURL, const char* postData = NULL, int postDataLen = 0);
@@ -75,10 +76,13 @@ private:
 
   RETDATA   m_Data;
   RETDATA   m_Header;
-  string    m_host;           // host name string
-  int       m_port;           // port number
+  //string    m_host;           // host name string(deplicated)
+  //int       m_port;           // port number(deplicated)
   string    m_url;            // url string
+
+  int       m_nRetCode;
   // query option..
+  int       m_redirect;
   int       m_verbose;
   int       m_verifier;
   string    m_cookie;         // input/output filename of cookie
