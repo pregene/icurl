@@ -55,6 +55,9 @@ public:
   int       SetVerifier(int option);
   int       SetRedirect(int option);
 
+  // get reponse header..
+  string    GetHeaderValue(string key);
+
   // HTTP protocol methods..
   int       SetHTTPHeader(string key, string value);
 
@@ -66,6 +69,7 @@ public:
 private:
   void      Release();
   int       PrepareOption(CURL* curl);
+  int       ParseHeader();
   //int       PostOption(CURL* curl);
   int       SetURL(const char* szURL);
   int       LoadHeader(string filename);
@@ -92,6 +96,8 @@ private:
   string    m_body_file;      // output filename of body
   // internal header stuff
   map<string, string> m_arr_headers;
+  map<string, string> m_res_headers;
+
   FILE*     m_pfile;
   struct curl_slist *m_phl;
 

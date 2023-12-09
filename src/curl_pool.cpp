@@ -409,6 +409,45 @@ int       CURLSession::QueryURL(CURL* curl, FILE* pfile)
   if (pfile)
     fclose(pfile);
 
+  /* response header */
+  ParseHeader();
+
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &m_nRetCode);
   return 0;
+}
+
+int CURLSession::ParseHeader()
+{
+  m_res_headers.clear();
+  string headers = m_Header.response;
+  istringstream ss(headers);
+  string el;
+  while (getline(ss, el))
+  {
+    if (el.find(":") != string::npos)
+    {
+      vector<string> arrs = splitstring(el, ':');
+      if (arrs.size() == 2)
+      {
+        m_res_headers.insert(pair<string,string>(trim(arrs.at(0)), trim(arrs.at(1))));
+      }
+      else
+      {
+        string value;
+        for (int i=1; i < arrs.size(); i++)
+        {
+          if (i != 1)
+            value += ":";
+          value += trim(arrs.at(i));
+        }
+        m_res_headers.insert(pair<string, string>(trim(arrs.at(0)), value));
+      }
+    }
+  }
+  return 0;
+}
+
+string    CURLSession::GetHeaderValue(string key)
+{
+  return m_res_headers[key];
 }

@@ -14,8 +14,9 @@ int main(int argc, char* argv[])
   session.SetCookieFile("data/cookies.txt");
   session.OpenURL("https://www.yes24.com");
 
-  printf("[%s:%d]\n%s\n", session.GetURL().c_str(), session.GetReturnCode(), session.GetHeaderString().c_str());
+  printf("[%s:%d]\n", session.GetURL().c_str(), session.GetReturnCode());
 
+  printf("%s\n", session.GetHeaderValue("Content-Type2").c_str());
   pause();
   return 0;
 }
