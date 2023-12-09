@@ -447,7 +447,7 @@ int CURLSession::ParseHeader()
   return 0;
 }
 
-string    CURLSession::GetHeaderValue(string key)
+string    CURLSession::GetHTTPHeader(string key)
 {
   return m_res_headers[key];
 }

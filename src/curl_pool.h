@@ -56,7 +56,7 @@ public:
   int       SetRedirect(int option);
 
   // get reponse header..
-  string    GetHeaderValue(string key);
+  string    GetHTTPHeader(string key);
 
   // HTTP protocol methods..
   int       SetHTTPHeader(string key, string value);
