@@ -12,6 +12,8 @@ int main(int argc, char* argv[])
   session.SetCookieFile("data/cookies.txt");
   session.OpenURL("https://www.yes24.com/Main/default.aspx");
 
+  printf("RET CODE=%d\n", session.GetReturnCode());
+  
   pause();
   return 0;
 }

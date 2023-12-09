@@ -22,6 +22,8 @@ else
 endif
 
 all:
+	mkdir -p temp
+	mkdir -p data
 	$(CC) $(SRC) $(CFLAGS) $(LIBS) -o $(EXEC)
 
 clean:
