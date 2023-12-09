@@ -390,23 +390,12 @@ int       CURLSession::PrepareOption(CURL* curl)
   return 0;
 }
 
-/*
-int       CURLSession::PostOption(CURL* curl)
-{
-  if (!m_cookie.empty())
-  {
-    curl_easy_setopt(curl, CURLOPT_COOKIEJAR, m_cookie.c_str());
-  }
-  return 0;
-}
-*/
-
 int       CURLSession::PostURL(const char* szURL, string filename)
 {
   return PostURL(m_curl, szURL, filename);
 }
 
-int       CURLSession::PostURL(CURL* curl, string filename)
+int       CURLSession::PostURL(CURL* curl, const char* szURL, string filename)
 {
   CURLcode res;
   FILE* pfile = NULL;
@@ -425,12 +414,12 @@ int       CURLSession::PostURL(CURL* curl, string filename)
   /*  connection configuration */
   PrepareOption(curl);
 
-  pFile = fopen(filename.c_str(), "rb");
-  if (!pFile)
+  pfile = fopen(filename.c_str(), "rb");
+  if (!pfile)
     return -1;
 
   // set post data..
-  curl_easy_setopt(curl, CURLOPT_READDATA, pFile);
+  curl_easy_setopt(curl, CURLOPT_READDATA, pfile);
 
 
   /* return */
@@ -472,8 +461,8 @@ int       CURLSession::PostURL(CURL* curl, string filename)
   }
 
   /* post data file clear */
-  if (pFile)
-    fclose(pFile);
+  if (pfile)
+    fclose(pfile);
 
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &m_nRetCode);
   return 0;
