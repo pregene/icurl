@@ -103,6 +103,17 @@ void    CURLSession::Close()
 
   m_verbose = 0;
   m_redirect = 0;
+
+  m_url.clear();
+  m_cookie.clear();
+  m_header.clear();
+  m_data_file.clear();
+  m_header_file.clear();
+  m_body_file.clear();
+
+  m_arr_headers.clear();
+  m_res_headers.clear();
+  m_body.clear();
 }
 
 CURL*   CURLSession::GetConnection() {return m_curl;}
@@ -188,6 +199,8 @@ void      CURLSession::Release()
   if (m_phl)
     curl_slist_free_all(m_phl);
   m_phl = 0;
+
+  m_body.clear();
 }
 
 int CURLSession::OpenURL(CURL* curl, const char* szURL)
@@ -277,9 +290,9 @@ int       CURLSession::PrepareOption(CURL* curl)
   }
 
   /* output body */
-  if (!m_data_file.empty())
+  if (!m_body_file.empty())
   {
-    m_pfile = fopen(m_data_file.c_str(), "wb");
+    m_pfile = fopen(m_body_file.c_str(), "wb");
     curl_easy_setopt( curl, CURLOPT_WRITEDATA, m_pfile) ;
   }
 
@@ -363,7 +376,7 @@ int       CURLSession::QueryURL(CURL* curl, FILE* pfile)
 {
   CURLcode res;
   /* return */
-  if (m_data_file.empty())
+  if (m_body_file.empty())
   {
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, pool_write_callback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*) this);
@@ -403,6 +416,11 @@ int       CURLSession::QueryURL(CURL* curl, FILE* pfile)
   {
     fclose(m_pfile);
     m_pfile = 0;
+    LoadBodyFile();
+  }
+  else
+  {
+    m_body = m_Data.response;
   }
 
   /* post data file clear */
@@ -413,6 +431,25 @@ int       CURLSession::QueryURL(CURL* curl, FILE* pfile)
   ParseHeader();
 
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &m_nRetCode);
+  return 0;
+}
+
+int       CURLSession::LoadBodyFile()
+{
+  if (!m_body_file.empty())
+  {
+    ifstream file;
+    file.open(m_body_file);
+
+    file.seekg (0, file.end);
+    int length = file.tellg();
+    file.seekg (0, file.beg);
+
+    m_body.clear();
+    m_body.resize(length + 1);
+    file.read ((char*)m_body.c_str(), length);
+    file.close();
+  }
   return 0;
 }
 
@@ -429,7 +466,8 @@ int CURLSession::ParseHeader()
       vector<string> arrs = splitstring(el, ':');
       if (arrs.size() == 2)
       {
-        m_res_headers.insert(pair<string,string>(trim(arrs.at(0)), trim(arrs.at(1))));
+        m_res_headers[trim(arrs.at(0))] = trim(arrs.at(1));
+        //m_res_headers.insert(pair<string,string>(trim(arrs.at(0)), trim(arrs.at(1))));
       }
       else
       {
@@ -440,7 +478,8 @@ int CURLSession::ParseHeader()
             value += ":";
           value += trim(arrs.at(i));
         }
-        m_res_headers.insert(pair<string, string>(trim(arrs.at(0)), value));
+        //m_res_headers.insert(pair<string, string>(trim(arrs.at(0)), value));
+        m_res_headers[trim(arrs.at(0))] = value;
       }
     }
   }

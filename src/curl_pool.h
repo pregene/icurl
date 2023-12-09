@@ -43,6 +43,7 @@ public:
   int       GetReturnCode() {return m_nRetCode;}
   RETDATA*  GetData() {return &m_Data;}
   RETDATA*  GetHeader() {return &m_Header;}
+  string    GetBody() {return m_body;}
   string    GetHeaderString() {string ret = m_Header.response; return ret;}
 
   // set curl option..
@@ -77,6 +78,7 @@ private:
   int       PostURL(CURL* curl, const char* szURL, const char* postData = NULL, int postDataLen = 0);
   int       PostURL(CURL* curl, const char* szURL, string filename);
   int       QueryURL(CURL* curl, FILE* pfile = NULL);
+  int       LoadBodyFile();
 
   RETDATA   m_Data;
   RETDATA   m_Header;
