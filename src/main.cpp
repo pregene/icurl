@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
   }
 
   */
-  session.LoadHeader("data/linux_header");
+  session.SetHeaderFile("data/linux_header");
   pause();
   return 0;
 }

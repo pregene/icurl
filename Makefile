@@ -9,7 +9,7 @@ SRC= 	src/main.cpp \
 OS := $(shell uname -s)
 
 ifeq ($(OS), Darwin)
-# CFLAGS := $(CFLAGS) -I/opt/homebrew/Cellar/openssl@1.1/1.1.1w/include
+#CFLAGS := $(CFLAGS) -Wc++17-extensions
 else
 #CFLAGS := $(CFLAGS) `pkg-config openssl --cflags`
 endif

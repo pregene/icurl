@@ -51,14 +51,20 @@ public:
   RETDATA*  GetHeader() {return &m_Header;}
   int       SetVerifier(int option);
 
+  // HTTP protocol methods..
+  int       SetHTTPHeader(string key, string value);
+
   // test codes..
-  int       LoadHeader(string filename);
+
+
   // method..
   int       OpenURL(const char* szURL);
   int       PostURL(const char* szURL, const char* postData = NULL, int postDataLen = 0);
   int       m_nRetCode;
 private:
   void      Release();
+  int       PrepareOption(CURL* curl);
+  int       LoadHeader(string filename);
   int       OpenURL(CURL* curl, const char* szURL);
   int       PostURL(CURL* curl, const char* szURL, const char* postData = NULL, int postDataLen = 0);
   RETDATA   m_Data;
@@ -75,6 +81,8 @@ private:
   string    m_body_file;      // output filename of body
   // internal header stuff
   map<string, string> m_arr_headers;
+  FILE*     m_pfile;
+  
   // response
   string    m_body;           // body string
   // connection.

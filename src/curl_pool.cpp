@@ -61,6 +61,7 @@ CURLSession::CURLSession() {
   m_curl = 0;m_port = 0;
   m_nRetCode=0;
   m_verifier = 0;
+  m_pfile = 0;
   memset(&m_Data, 0, sizeof(RETDATA));
   memset(&m_Header, 0, sizeof(RETDATA));
   Open();
@@ -88,6 +89,10 @@ void    CURLSession::Close()
     free(m_Header.response);
   m_nRetCode=0;
   m_verifier = 0;
+
+  if (m_pfile)
+    fclose(m_pfile);
+  m_pfile = 0;
 }
 
 CURL*   CURLSession::GetConnection() {return m_curl;}
@@ -113,7 +118,7 @@ int       CURLSession::SetCookieFile(string filename)
 int       CURLSession::SetHeaderFile(string filename)
 {
   m_header = filename;
-  return 0;
+  return LoadHeader(m_header);
 }
 int       CURLSession::SetWriteFile(string filename)
 {
@@ -151,6 +156,10 @@ void      CURLSession::Release()
   m_nRetCode=0;
   memset(&m_Data, 0, sizeof(RETDATA));
   memset(&m_Header, 0, sizeof(RETDATA));
+
+  if (m_pfile)
+    fclose(m_pfile);
+  m_pfile = 0;
 }
 
 int CURLSession::OpenURL(CURL* curl, const char* szURL)
@@ -169,11 +178,12 @@ int CURLSession::OpenURL(CURL* curl, const char* szURL)
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, pool_write_callback);
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*) this);
 
-  /* user-agne */
-  curl_easy_setopt(curl, CURLOPT_USERAGENT, "curl/7.71.1");
   /* header callback */
   curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, pool_header_callback);
   curl_easy_setopt(curl, CURLOPT_HEADERDATA, (void*) this);
+
+  /*  connection configuration */
+  PrepareOption(curl);
 
   /* https */
   if (m_verifier == 0)
@@ -196,11 +206,60 @@ int CURLSession::OpenURL(CURL* curl, const char* szURL)
 int       CURLSession::LoadHeader(string filename)
 {
   ifstream file;
-  file.open(filename);
   string el;
+
+  if (file_exist(filename) == false)
+    return -1;
+
+  file.open(filename);
+
+  // clear buffer...
+  m_arr_headers.clear();
   while (getline(file, el))
   {
-    cout << el << endl;
+    vector<string> arrs = splitstring(el, ':');
+    if (arrs.size() == 2)
+    {
+      m_arr_headers.insert(pair<string, string>(trim(arrs.at(0)), trim(arrs.at(1))));
+    }
+    else
+    {
+        string value;
+        for (int i=1; i < arrs.size(); i++)
+        {
+          if (i != 1)
+            value += ":";
+          value += trim(arrs.at(i));
+        }
+        m_arr_headers.insert(pair<string, string>(trim(arrs.at(0)), value));
+    }
+    //cout << el << endl;
   }
   return 0;
+}
+
+int       CURLSession::SetHTTPHeader(string key, string value)
+{
+  map<string, string>::iterator search = m_arr_headers.find(key);
+  if (search != m_arr_headers.end())
+  {
+    m_arr_headers[key] = value;
+  }
+  else
+    m_arr_headers.insert(pair<string, string>(key, value));
+  return 0;
+}
+
+int       CURLSession::PrepareOption(CURL* curl)
+{
+  /* header */
+  if (m_arr_headers.size() > 0)
+  {
+
+  }
+  /* input cookie */
+
+  /* output cookie */
+
+  /* output body */
 }
