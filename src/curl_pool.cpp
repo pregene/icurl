@@ -254,7 +254,7 @@ int CURLSession::PostURL( CURL* curl,
   PrepareOption(curl);
 
   // set READ function..
-  curl_easy_setopt(curl, CURLOPT_READFUNCTION, poot_read_callback);
+  curl_easy_setopt(curl, CURLOPT_READFUNCTION, pool_read_callback);
 
   if (postData && postDataLen > 0)
   {
