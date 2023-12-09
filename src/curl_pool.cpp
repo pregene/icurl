@@ -6,7 +6,7 @@ static size_t pool_read_callback(char *dest, size_t size, size_t nmemb, void *us
   struct POSTDATA *wt = (struct POSTDATA *)userp;
   size_t buffer_size = size*nmemb;
 
-  if(wt->sizeleft) {
+  if(wt->sizeleft && wt->readptr) {
     /* copy as much as possible from the source to the destination */
     size_t copy_this_much = wt->sizeleft;
     if(copy_this_much > buffer_size)
@@ -223,7 +223,92 @@ int CURLSession::OpenURL(CURL* curl, const char* szURL)
     fclose(m_pfile);
     m_pfile = 0;
   }
-  
+
+  curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &m_nRetCode);
+  return 0;
+}
+
+int CURLSession::PostURL(const char* szURL, const char* postData, int postDataLen)
+{
+  return PostURL(m_curl, szURL, postData, postDataLen);
+}
+
+int CURLSession::PostURL( CURL* curl,
+                          const char* szURL, const char* postData, int postDataLen)
+{
+  CURLcode res;
+  POSTDATA data;
+
+  if (!curl || !szURL)
+    return -1; // curl handler error..
+               // should call curl_global_init(CURL_GLOBAL_DEFAULT) before this.
+
+  Release();
+  //curl_easy_setopt(curl, CURLOPT_URL, szURL);
+  SetURL(szURL);
+
+  // set POST..
+  curl_easy_setopt(curl, CURLOPT_POST, 1L);
+
+  /*  connection configuration */
+  PrepareOption(curl);
+
+  // set READ function..
+  curl_easy_setopt(curl, CURLOPT_READFUNCTION, poot_read_callback);
+
+  if (postData && postDataLen > 0)
+  {
+    data.readptr = postData;
+    data.sizeleft = postDataLen;
+  }
+  else
+  {
+    data.readptr = 0;
+    data.sizeleft = 0;
+  }
+
+  // set post data..
+  curl_easy_setopt(curl, CURLOPT_READDATA, &data);
+  curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)data.sizeleft);
+
+  /* return */
+  if (m_data_file.empty())
+  {
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, pool_write_callback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*) this);
+  }
+
+  /* header callback */
+  curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, pool_header_callback);
+  curl_easy_setopt(curl, CURLOPT_HEADERDATA, (void*) this);
+
+  /* https */
+  if (m_verifier == 0)
+  {
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+  }
+
+  /* verbose */
+  curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+
+  res = curl_easy_perform(curl);
+
+  /* cookie writing.. */
+  if (!m_cookie.empty())
+    curl_easy_setopt(curl, CURLOPT_COOKIELIST, "FLUSH");
+
+  if(res != CURLE_OK)
+    fprintf(stderr, "HTTP:POST:FAIL: %s\n",
+            curl_easy_strerror(res));
+
+  /* body file clear */
+  if (m_pfile)
+  {
+    fclose(m_pfile);
+    m_pfile = 0;
+  }
+
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &m_nRetCode);
   return 0;
 }

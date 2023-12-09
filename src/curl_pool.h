@@ -60,6 +60,7 @@ public:
   // method..
   int       OpenURL(const char* szURL);
   int       PostURL(const char* szURL, const char* postData = NULL, int postDataLen = 0);
+  int       PostURL(const char* szURL, string filename);
   int       m_nRetCode;
 private:
   void      Release();
@@ -68,6 +69,8 @@ private:
   int       LoadHeader(string filename);
   int       OpenURL(CURL* curl, const char* szURL);
   int       PostURL(CURL* curl, const char* szURL, const char* postData = NULL, int postDataLen = 0);
+  int       PostURL(CURL* curl, string filename);
+  
   RETDATA   m_Data;
   RETDATA   m_Header;
   string    m_host;           // host name string
