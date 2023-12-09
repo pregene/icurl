@@ -10,7 +10,8 @@
 int main(int argc, char* argv[])
 {
   CURLSession session;
-  session.OpenURL("https://www.yes24.com");
+  //session.OpenURL("https://www.yes24.com/Main/default.aspx");
+  session.OpenURL("https://www.interpark.com");
 
   RETDATA* pdata = session.GetData();
   if (pdata)

@@ -139,8 +139,11 @@ int CURLSession::OpenURL(CURL* curl, const char* szURL)
   curl_easy_setopt(curl, CURLOPT_HEADERDATA, (void*) this);
 
   /* https */
-  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+  //curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+  //curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+  curl_easy_setopt(curl, CURLOPT_SSL_ENABLE_ALPN, 1L);
+  curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
+  curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
   res = curl_easy_perform(curl);
   if(res != CURLE_OK)
