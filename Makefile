@@ -26,3 +26,6 @@ all:
 
 clean:
 	rm -f $(EXEC)
+	rm -f data/*.txt
+	rm -f temp/*.res
+	rm -f temp/*.utf8
