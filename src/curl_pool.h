@@ -3,6 +3,7 @@
 
 #include "project.h"
 #include <curl/curl.h>
+#include <map>
 /*
 #include <stdio.h>
 #include <string.h>
@@ -41,12 +42,17 @@ public:
   int       SetHeaderFile(string filename);
   int       SetWriteFile(string filename);
   int       SetDataFile(string filename);
+  int       SetHeaderOut(string filename);
   string    GetURL();
   int       GetPort();
   string    GetHost();
   int       GetReturnCode() {return m_nRetCode;}
   RETDATA*  GetData() {return &m_Data;}
   RETDATA*  GetHeader() {return &m_Header;}
+  int       SetVerifier(int option);
+
+  // test codes..
+  int       LoadHeader(string filename);
   // method..
   int       OpenURL(const char* szURL);
   int       PostURL(const char* szURL, const char* postData = NULL, int postDataLen = 0);
@@ -60,12 +66,18 @@ private:
   string    m_host;           // host name string
   int       m_port;           // port number
   string    m_url;            // url string
+  // query option..
+  int       m_verifier;
   string    m_cookie;         // input filename of cookie
   string    m_header;         // input filename of header
   string    m_data_file;      // input filename of post data
   string    m_header_file;    // output filename of header
   string    m_body_file;      // output filename of body
+  // internal header stuff
+  map<string, string> m_arr_headers;
+  // response
   string    m_body;           // body string
+  // connection.
   CURL*     m_curl;           // a connection of libcurl
 };
 

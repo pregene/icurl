@@ -30,7 +30,9 @@ using namespace std;
 std::string ltrim(const std::string &s);
 std::string rtrim(const std::string &s);
 std::string trim(const std::string &s);
+std::vector<std::string> splitstring(std::string line, char ch);
 bool file_exist (const std::string& name);
+std::string strformat(const char* format, ...);
 
 #define CA_SUCCESS  0
 #define CA_FAIL    -1

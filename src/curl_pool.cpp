@@ -1,4 +1,5 @@
 #include "curl_pool.h"
+#include <fstream>
 
 static size_t pool_read_callback(char *dest, size_t size, size_t nmemb, void *userp)
 {
@@ -59,6 +60,7 @@ size_t pool_header_callback(void *data, size_t size, size_t nmemb, void *userp)
 CURLSession::CURLSession() {
   m_curl = 0;m_port = 0;
   m_nRetCode=0;
+  m_verifier = 0;
   memset(&m_Data, 0, sizeof(RETDATA));
   memset(&m_Header, 0, sizeof(RETDATA));
   Open();
@@ -85,6 +87,7 @@ void    CURLSession::Close()
   if (m_Header.response)
     free(m_Header.response);
   m_nRetCode=0;
+  m_verifier = 0;
 }
 
 CURL*   CURLSession::GetConnection() {return m_curl;}
@@ -101,7 +104,39 @@ string  CURLSession::GetURL()  {return m_url;}
 int     CURLSession::GetPort() {return m_port;}
 string  CURLSession::GetHost() {return m_host;}
 
-// method..
+// option method..
+int       CURLSession::SetCookieFile(string filename)
+{
+  m_cookie = filename;
+  return 0;
+}
+int       CURLSession::SetHeaderFile(string filename)
+{
+  m_header = filename;
+  return 0;
+}
+int       CURLSession::SetWriteFile(string filename)
+{
+  m_body_file = filename;
+  return 0;
+}
+int       CURLSession::SetDataFile(string filename)
+{
+  m_data_file = filename;
+  return 0;
+}
+int       CURLSession::SetHeaderOut(string filename)
+{
+  m_header_file = filename;
+  return 0;
+}
+
+int       CURLSession::SetVerifier(int option)
+{
+  return 0;
+}
+
+// url method..
 int      CURLSession::OpenURL(const char* szURL)
 {
   return OpenURL(m_curl, szURL);
@@ -134,16 +169,20 @@ int CURLSession::OpenURL(CURL* curl, const char* szURL)
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, pool_write_callback);
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*) this);
 
-  /* header */
+  /* user-agne */
+  curl_easy_setopt(curl, CURLOPT_USERAGENT, "curl/7.71.1");
+  /* header callback */
   curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, pool_header_callback);
   curl_easy_setopt(curl, CURLOPT_HEADERDATA, (void*) this);
 
   /* https */
-  //curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-  //curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-  curl_easy_setopt(curl, CURLOPT_SSL_ENABLE_ALPN, 1L);
-  curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
-  curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+  if (m_verifier == 0)
+  {
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+  }
+
+  /* header set */
 
   res = curl_easy_perform(curl);
   if(res != CURLE_OK)
@@ -151,5 +190,17 @@ int CURLSession::OpenURL(CURL* curl, const char* szURL)
             curl_easy_strerror(res));
 
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &m_nRetCode);
+  return 0;
+}
+
+int       CURLSession::LoadHeader(string filename)
+{
+  ifstream file;
+  file.open(filename);
+  string el;
+  while (getline(file, el))
+  {
+    cout << el << endl;
+  }
   return 0;
 }
