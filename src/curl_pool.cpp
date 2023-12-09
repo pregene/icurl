@@ -61,6 +61,7 @@ CURLSession::CURLSession() {
   m_curl = 0;m_port = 0;
   m_nRetCode=0;
   m_verifier = 0;
+  m_verbose = 0;
   m_pfile = 0;
   m_phl = 0;
   memset(&m_Data, 0, sizeof(RETDATA));
@@ -98,6 +99,8 @@ void    CURLSession::Close()
   if (m_phl)
     curl_slist_free_all(m_phl);
   m_phl = 0;
+
+  m_verbose = 0;
 }
 
 CURL*   CURLSession::GetConnection() {return m_curl;}
@@ -143,6 +146,13 @@ int       CURLSession::SetHeaderOut(string filename)
 
 int       CURLSession::SetVerifier(int option)
 {
+  m_verifier = option;
+  return 0;
+}
+
+int       CURLSession::SetVerbose(int option)
+{
+  m_verbose = option;
   return 0;
 }
 
@@ -173,150 +183,22 @@ void      CURLSession::Release()
 
 int CURLSession::OpenURL(CURL* curl, const char* szURL)
 {
-  CURLcode res;
-
   if (!curl || !szURL)
     return -1; // curl handler error..
                // should call curl_global_init(CURL_GLOBAL_DEFAULT) before this.
-
   Release();
   //curl_easy_setopt(curl, CURLOPT_URL, szURL);
   SetURL(szURL);
 
-  /* return */
-  if (m_data_file.empty())
-  {
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, pool_write_callback);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*) this);
-  }
-
-  /* header callback */
-  curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, pool_header_callback);
-  curl_easy_setopt(curl, CURLOPT_HEADERDATA, (void*) this);
-
-  /* redirect option */
-  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-
   /*  connection configuration */
   PrepareOption(curl);
 
-  /* https */
-  if (m_verifier == 0)
-  {
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-  }
-
-  /* verbose */
-  curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-
-  res = curl_easy_perform(curl);
-
-  /* cookie writing.. */
-  if (!m_cookie.empty())
-    curl_easy_setopt(curl, CURLOPT_COOKIELIST, "FLUSH");
-
-  if(res != CURLE_OK)
-    fprintf(stderr, "HTTP:GET:FAIL: %s\n",
-            curl_easy_strerror(res));
-
-  /* body file clear */
-  if (m_pfile)
-  {
-    fclose(m_pfile);
-    m_pfile = 0;
-  }
-
-  curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &m_nRetCode);
-  return 0;
+  return QueryURL(curl);
 }
 
 int CURLSession::PostURL(const char* szURL, const char* postData, int postDataLen)
 {
   return PostURL(m_curl, szURL, postData, postDataLen);
-}
-
-int CURLSession::PostURL( CURL* curl,
-                          const char* szURL, const char* postData, int postDataLen)
-{
-  CURLcode res;
-  POSTDATA data;
-
-  if (!curl || !szURL)
-    return -1; // curl handler error..
-               // should call curl_global_init(CURL_GLOBAL_DEFAULT) before this.
-
-  Release();
-  //curl_easy_setopt(curl, CURLOPT_URL, szURL);
-  SetURL(szURL);
-
-  // set POST..
-  curl_easy_setopt(curl, CURLOPT_POST, 1L);
-
-  /*  connection configuration */
-  PrepareOption(curl);
-
-  // set READ function..
-  curl_easy_setopt(curl, CURLOPT_READFUNCTION, pool_read_callback);
-
-  if (postData && postDataLen > 0)
-  {
-    data.readptr = postData;
-    data.sizeleft = postDataLen;
-  }
-  else
-  {
-    data.readptr = 0;
-    data.sizeleft = 0;
-  }
-
-  // set post data..
-  curl_easy_setopt(curl, CURLOPT_READDATA, &data);
-  curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)data.sizeleft);
-
-  /* return */
-  if (m_data_file.empty())
-  {
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, pool_write_callback);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*) this);
-  }
-
-  /* header callback */
-  curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, pool_header_callback);
-  curl_easy_setopt(curl, CURLOPT_HEADERDATA, (void*) this);
-
-  /* https */
-  if (m_verifier == 0)
-  {
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-  }
-
-  /* redirect option */
-  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-
-  /* verbose */
-  curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-
-  res = curl_easy_perform(curl);
-
-  /* cookie writing.. */
-  if (!m_cookie.empty())
-    curl_easy_setopt(curl, CURLOPT_COOKIELIST, "FLUSH");
-
-  if(res != CURLE_OK)
-    fprintf(stderr, "HTTP:POST:FAIL: %s\n",
-            curl_easy_strerror(res));
-
-  /* body file clear */
-  if (m_pfile)
-  {
-    fclose(m_pfile);
-    m_pfile = 0;
-  }
-
-  curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &m_nRetCode);
-  return 0;
 }
 
 int       CURLSession::LoadHeader(string filename)
@@ -381,7 +263,6 @@ int       CURLSession::PrepareOption(CURL* curl)
   /* input/output cookie */
   if (!m_cookie.empty())
   {
-    cout << m_cookie.c_str() << endl;
     curl_easy_setopt(curl, CURLOPT_COOKIEFILE, m_cookie.c_str());
     curl_easy_setopt(curl, CURLOPT_COOKIEJAR, m_cookie.c_str());
   }
@@ -403,7 +284,6 @@ int       CURLSession::PostURL(const char* szURL, string filename)
 
 int       CURLSession::PostURL(CURL* curl, const char* szURL, string filename)
 {
-  CURLcode res;
   FILE* pfile = NULL;
 
   if (!curl || !szURL)
@@ -427,7 +307,52 @@ int       CURLSession::PostURL(CURL* curl, const char* szURL, string filename)
   // set post data..
   curl_easy_setopt(curl, CURLOPT_READDATA, pfile);
 
+  return QueryURL(curl, pfile);
+}
 
+int CURLSession::PostURL( CURL* curl,
+                          const char* szURL, const char* postData, int postDataLen)
+{
+  POSTDATA data;
+
+  if (!curl || !szURL)
+    return -1; // curl handler error..
+               // should call curl_global_init(CURL_GLOBAL_DEFAULT) before this.
+
+  Release();
+  //curl_easy_setopt(curl, CURLOPT_URL, szURL);
+  SetURL(szURL);
+
+  // set POST..
+  curl_easy_setopt(curl, CURLOPT_POST, 1L);
+
+  /*  connection configuration */
+  PrepareOption(curl);
+
+  // set READ function..
+  curl_easy_setopt(curl, CURLOPT_READFUNCTION, pool_read_callback);
+
+  if (postData && postDataLen > 0)
+  {
+    data.readptr = postData;
+    data.sizeleft = postDataLen;
+  }
+  else
+  {
+    data.readptr = 0;
+    data.sizeleft = 0;
+  }
+
+  // set post data..
+  curl_easy_setopt(curl, CURLOPT_READDATA, &data);
+  curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)data.sizeleft);
+
+  return QueryURL(curl);
+}
+
+int       CURLSession::QueryURL(CURL* curl, FILE* pfile)
+{
+  CURLcode res;
   /* return */
   if (m_data_file.empty())
   {
@@ -447,7 +372,8 @@ int       CURLSession::PostURL(CURL* curl, const char* szURL, string filename)
   }
 
   /* verbose */
-  curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+  if (m_verbose)
+    curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
   /* redirect option */
   curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
@@ -459,7 +385,7 @@ int       CURLSession::PostURL(CURL* curl, const char* szURL, string filename)
     curl_easy_setopt(curl, CURLOPT_COOKIELIST, "FLUSH");
 
   if(res != CURLE_OK)
-    fprintf(stderr, "HTTP:POST:FAIL: %s\n",
+    fprintf(stderr, "HTTP:QUERY:FAIL: %s\n",
             curl_easy_strerror(res));
 
   /* body file clear */

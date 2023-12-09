@@ -43,6 +43,7 @@ public:
   int       SetWriteFile(string filename);
   int       SetDataFile(string filename);
   int       SetHeaderOut(string filename);
+  int       SetVerbose(int option);
   string    GetURL();
   int       GetPort();
   string    GetHost();
@@ -70,6 +71,7 @@ private:
   int       OpenURL(CURL* curl, const char* szURL);
   int       PostURL(CURL* curl, const char* szURL, const char* postData = NULL, int postDataLen = 0);
   int       PostURL(CURL* curl, const char* szURL, string filename);
+  int       QueryURL(CURL* curl, FILE* pfile = NULL);
 
   RETDATA   m_Data;
   RETDATA   m_Header;
@@ -77,6 +79,7 @@ private:
   int       m_port;           // port number
   string    m_url;            // url string
   // query option..
+  int       m_verbose;
   int       m_verifier;
   string    m_cookie;         // input/output filename of cookie
   string    m_header;         // input filename of header
