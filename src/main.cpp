@@ -10,10 +10,10 @@ int main(int argc, char* argv[])
   session.SetDataFile("temp/1.res");
   session.SetHeaderFile("data/linux_header");
   session.SetCookieFile("data/cookies.txt");
-  session.OpenURL("https://www.yes24.com/Main/default.aspx");
+  session.OpenURL("https://www.yes24.com");
 
   printf("RET CODE=%d\n", session.GetReturnCode());
-  
+
   pause();
   return 0;
 }

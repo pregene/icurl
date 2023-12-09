@@ -194,6 +194,9 @@ int CURLSession::OpenURL(CURL* curl, const char* szURL)
   curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, pool_header_callback);
   curl_easy_setopt(curl, CURLOPT_HEADERDATA, (void*) this);
 
+  /* redirect option */
+  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+
   /*  connection configuration */
   PrepareOption(curl);
 
@@ -288,6 +291,9 @@ int CURLSession::PostURL( CURL* curl,
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
   }
+
+  /* redirect option */
+  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 
   /* verbose */
   curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
@@ -442,6 +448,9 @@ int       CURLSession::PostURL(CURL* curl, const char* szURL, string filename)
 
   /* verbose */
   curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+
+  /* redirect option */
+  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 
   res = curl_easy_perform(curl);
 
