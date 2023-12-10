@@ -1,11 +1,9 @@
 CC=g++
 CFLAGS=
 LIBS=-lcurl
-EXEC=icurl
-SRC= 	src/main.cpp \
-			src/project.cpp \
+EXEC=icurl_demo
+SRC= 	src/project.cpp \
 			src/curl_pool.cpp
-
 OS := $(shell uname -s)
 
 ifeq ($(OS), Darwin)
@@ -24,7 +22,8 @@ endif
 all:
 	mkdir -p temp
 	mkdir -p data
-	$(CC) $(SRC) $(CFLAGS) $(LIBS) -o $(EXEC)
+	$(CC) src/main.cpp $(SRC) $(CFLAGS) $(LIBS) -o $(EXEC)
+
 
 clean:
 	rm -f $(EXEC)
