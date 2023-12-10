@@ -486,43 +486,6 @@ int       CURLSession::LoadBodyFile()
   return 0;
 }
 
-int CURLSession::ParseHeader()
-{
-  m_res_headers.clear();
-  string headers = m_Header.response;
-  istringstream ss(headers);
-  string el;
-  while (getline(ss, el))
-  {
-    if (el.find(":") != string::npos)
-    {
-      string value;
-      vector<string> arrs = splitstring(el, ':');
-      if (arrs.size() == 2)
-      {
-        m_res_headers[trim(arrs.at(0))] = trim(arrs.at(1));
-      }
-      else
-      {
-        for (int i=1; i < arrs.size(); i++)
-        {
-          if (i != 1)
-            value += ":";
-          value += trim(arrs.at(i));
-        }
-        m_res_headers[trim(arrs.at(0))] = value;
-      }
-
-      // Set-Cookies
-      if (arrs.size() > 1 && arrs.at(0) == "Set-Cookie")
-      {
-
-      }
-    }
-  }
-  return 0;
-}
-
 string    CURLSession::GetHTTPHeader(string key)
 {
   return m_res_headers[key];
@@ -620,4 +583,41 @@ int       CURLSession::PostURLEncode(const char* szURL, const char* postData, in
     }
   }
   return PostURL(szURL, data.c_str(), data.size());
+}
+
+int CURLSession::ParseHeader()
+{
+  m_res_headers.clear();
+  string headers = m_Header.response;
+  istringstream ss(headers);
+  string el;
+  while (getline(ss, el))
+  {
+    if (el.find(":") != string::npos)
+    {
+      string value;
+      vector<string> arrs = splitstring(el, ':');
+      if (arrs.size() == 2)
+      {
+        m_res_headers[trim(arrs.at(0))] = trim(arrs.at(1));
+      }
+      else
+      {
+        for (int i=1; i < arrs.size(); i++)
+        {
+          if (i != 1)
+            value += ":";
+          value += trim(arrs.at(i));
+        }
+        m_res_headers[trim(arrs.at(0))] = value;
+      }
+
+      // Set-Cookies
+      if (arrs.size() > 1 && arrs.at(0) == "Set-Cookie")
+      {
+
+      }
+    }
+  }
+  return 0;
 }
