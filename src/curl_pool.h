@@ -29,18 +29,17 @@ struct POSTDATA {
   size_t sizeleft;
 };
 
-class Cookies
+class Cookie
 {
 public:
-  Cookies() {m_partition = 0;}
-  Cookies(string line)
+  Cookie() {m_partition = 0;}
+  Cookie(string line)
   {
     m_partition = 0;
     ParseLine(line);
   }
-  ~Cookies() {}
+  ~Cookie() {}
 
-private:
   void  ParseLine(string line)
   {
       string key[7];
@@ -98,6 +97,7 @@ private:
                 key[2].empty() ? 1 : 0);
   }
 
+private:
   void SetField (   string key,
                     string path,
                     string domain,
@@ -126,6 +126,44 @@ public:
   string GetHttpOnly()  {return m_http_only;}
   string GetSecure()    {return m_secure;}
   int    GetPartition() {return m_partition;}
+
+  void   SetKeyValue(string val)  {m_keyvalue=val;}
+  void   SetKey(string val)       {m_key=val;}
+  void   SetValue(string val)     {m_value=val;}
+  void   SetDomain(string val)    {m_domain=val;}
+  void   SetExpire(string val)    {m_expire=val;}
+  void   SetHttpOnly(string val)  {m_http_only=val;}
+  void   SetSecure(string val)    {m_secure=val;}
+  void   SetPartition(int val)    {m_partition=val;}
+
+  string DumpString()
+  {
+      string ret = m_keyvalue;
+      ret += "\t";
+      ret += m_domain;
+      ret += "\t";
+      ret += m_expire;
+      ret += "\t";
+      ret += m_http_only;
+      ret += "\t";
+      ret += m_secure;
+      ret += "\t";
+      ret += to_string(m_partition);
+      return ret;
+  }
+
+  Cookie& operator=(Cookie& self)
+  {
+    this->SetKeyValue(self.GetKeyValue());
+    this->SetKey(self.GetKey());
+    this->SetValue(self.GetValue());
+    this->SetDomain(self.GetDomain());
+    this->SetExpire(self.GetExpire());
+    this->SetHttpOnly(self.GetHttpOnly());
+    this->SetSecure(self.GetSecure());
+    this->SetPartition(self.GetPartition());
+    return *this;
+  }
 
 private:
   string m_key;
@@ -173,9 +211,14 @@ public:
   // HTTP protocol methods..
   int       SetHTTPHeader(string key, string value);
 
-  // get cookie..
+  // get cookie from the cookie list of curl.
   string    GetJARCookie(string key);
   string    GetJARCookies();
+
+  // get cookie from own cookie stuff..
+  string    GetCookie(string key);
+  string    GetCookies();
+  void      SetCookie(string key, string value);
 
   // method..
   int       OpenURL(const char* szURL);
@@ -200,6 +243,8 @@ private:
   //int       PostURL(CURL* curl, const char* szURL, string filename); // deplicated..
   int       QueryURL(CURL* curl, FILE* pfile = NULL);
   int       LoadBodyFile();
+  int       CheckCookie(string key);
+  void      DebugCookies();
 
   RETDATA   m_Data;
   RETDATA   m_Header;
@@ -222,7 +267,7 @@ private:
   map<string, string> m_res_headers;
 
   // cookie error fix..
-  list<Cookies> m_arr_cookies;
+  list<Cookie> m_arr_cookies;
 
   // output file pointer of body
   FILE*     m_pfile;

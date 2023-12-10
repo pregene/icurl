@@ -453,15 +453,20 @@ int       CURLSession::QueryURL(CURL* curl, FILE* pfile)
     m_body = m_Data.response;
   }
 
-  /* print cookies */
-  print_cookies(curl);
-
   /* post data file clear */
   if (pfile)
     fclose(pfile);
 
   /* response header */
   ParseHeader();
+
+  /* print cookies */
+  if (m_verbose)
+    print_cookies(curl);
+
+  /* internal cookie stuff */
+  if (m_verbose)
+    DebugCookies();
 
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &m_nRetCode);
   return 0;
@@ -585,6 +590,16 @@ int       CURLSession::PostURLEncode(const char* szURL, const char* postData, in
   return PostURL(szURL, data.c_str(), data.size());
 }
 
+int CURLSession::CheckCookie(string key)
+{
+  for (list<Cookie>::iterator it = m_arr_cookies.begin(); it != m_arr_cookies.end(); ++it)
+  {
+    if (it->GetKey() == key)
+      return 1;
+  }
+  return 0;
+}
+
 int CURLSession::ParseHeader()
 {
   m_res_headers.clear();
@@ -599,7 +614,7 @@ int CURLSession::ParseHeader()
       vector<string> arrs = splitstring(el, ':');
       if (arrs.size() == 2)
       {
-        m_res_headers[trim(arrs.at(0))] = trim(arrs.at(1));
+        value = trim(arrs.at(1));
       }
       else
       {
@@ -609,15 +624,88 @@ int CURLSession::ParseHeader()
             value += ":";
           value += trim(arrs.at(i));
         }
-        m_res_headers[trim(arrs.at(0))] = value;
       }
-
+      m_res_headers[trim(arrs.at(0))] = value;
       // Set-Cookies
       if (arrs.size() > 1 && arrs.at(0) == "Set-Cookie")
       {
-
+        cout << value << endl;
+        vector<string> lines = splitstring(value, '=');
+        if (CheckCookie(lines.at(0)))
+        {
+          // update
+          for (list<Cookie>::iterator it = m_arr_cookies.begin(); it != m_arr_cookies.end(); ++it)
+          {
+            if (it->GetKey() == lines.at(0))
+            {
+              it->ParseLine(value);
+              break;
+            }
+          }
+        }
+        else
+        {
+          // insert
+          m_arr_cookies.push_back(Cookie(value));
+        }
       }
     }
   }
   return 0;
+}
+
+string    CURLSession::GetCookie(string key)
+{
+  string ret;
+  for (list<Cookie>::iterator it = m_arr_cookies.begin(); it != m_arr_cookies.end(); ++it)
+  {
+    if (it->GetKey() == key)
+    {
+      ret = it->GetKeyValue();
+      break;
+    }
+  }
+  return ret;
+}
+string    CURLSession::GetCookies()
+{
+  string ret;
+  for (list<Cookie>::iterator it = m_arr_cookies.begin(); it != m_arr_cookies.end(); ++it)
+  {
+    if (!ret.empty())
+    {
+      ret+= "; ";
+    }
+    ret += it->GetKeyValue();
+  }
+  return ret;
+}
+
+void      CURLSession::SetCookie(string key, string value)
+{
+  for (list<Cookie>::iterator it = m_arr_cookies.begin(); it != m_arr_cookies.end(); ++it)
+  {
+    if (it->GetKey() == key)
+    {
+      it->SetValue(value);
+      return;
+    }
+  }
+
+  string line = key;
+  line+= "=";
+  line+= value;
+  m_arr_cookies.push_back(Cookie(line));
+}
+
+void CURLSession::DebugCookies()
+{
+  int index = 0;
+  cout << "=== Internal Cookie Stuff ===" << endl;
+  for (list<Cookie>::iterator it = m_arr_cookies.begin(); it != m_arr_cookies.end(); ++it)
+  {
+    index++;
+    cout << "[" << to_string(index) << "]: ";
+    cout << it->DumpString() << endl;
+  }
 }

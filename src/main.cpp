@@ -36,13 +36,13 @@ int main(int argc, char* argv[])
 {
   CURLSession session;
   //session.OpenURL("https://www.yes24.com/Main/default.aspx");
-  //session.SetVerbose(1);
+  session.SetVerbose(1);
   session.SetRedirect(1);
   session.SetWriteFile("temp/1.res");
   session.SetHeaderFile("data/linux_header");
   session.SetCookieFile("data/cookies.txt");
-  //session.OpenURL("https://www.yes24.com");
-  session.OpenURL("http://ticket.yes24.com/New/Main.aspx");
+  session.OpenURL("https://www.yes24.com");
+  //session.OpenURL("http://ticket.yes24.com/New/Main.aspx");
 
   //printf("[%s:%d]\n", session.GetURL().c_str(), session.GetReturnCode());
 
@@ -50,19 +50,19 @@ int main(int argc, char* argv[])
   //printf("[HEADER]\n%s", session.GetHeaderString().c_str());
 
   //printf("%s\n", session.GetJARCookie("HTTP_REFERER").c_str());
-  //printf("%s\n", session.GetJARCookies().c_str());
+  //printf("%s\n", session.GetCookies().c_str());
   //printf("%s\n", session.GetBody().c_str());
 
-  session.SetWriteFile("temp/2.res");
-  session.SetHeaderFile("data/linux_header");
-  session.SetCookieFile("data/cookies.txt");
-  session.PostURLEncode("http://localhost:8080/", "a=Hello#!&b=1", 13);
+  //session.SetWriteFile("temp/2.res");
+  //session.SetHeaderFile("data/linux_header");
+  //session.SetCookieFile("data/cookies.txt");
+  //session.PostURLEncode("http://localhost:8080/", "a=Hello#!&b=1", 13);
   //session.PostURL("http://localhost:8080/", "post.data");
 
-  printf("[%s:%d]\n", session.GetURL().c_str(), session.GetReturnCode());
+  //printf("[%s:%d]\n", session.GetURL().c_str(), session.GetReturnCode());
 
   //printf("%s\n", session.GetHTTPHeader("Content-Type").c_str());
-  printf("[HEADER]\n%s", session.GetHeaderString().c_str());
+  //printf("[HEADER]\n%s", session.GetHeaderString().c_str());
 
   pause();
   return 0;
