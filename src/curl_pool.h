@@ -210,6 +210,7 @@ public:
 
   // HTTP protocol methods..
   int       SetHTTPHeader(string key, string value);
+  void      RefreshHTTPHeader();  // load from header file(m_header) again..
 
   // get cookie from the cookie list of curl.
   string    GetJARCookie(string key);

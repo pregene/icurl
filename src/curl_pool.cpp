@@ -258,6 +258,11 @@ int       CURLSession::LoadHeader(string filename)
   return 0;
 }
 
+void      CURLSession::RefreshHTTPHeader()
+{
+  LoadHeader(m_header);
+}
+
 int       CURLSession::SetHTTPHeader(string key, string value)
 {
   map<string, string>::iterator search = m_arr_headers.find(key);

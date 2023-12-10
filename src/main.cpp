@@ -55,9 +55,6 @@ int main(int argc, char* argv[])
   // curl GET mothod --url option..
   session.OpenURL("https://www.yes24.com");
 
-  // curl POST method --url option..
-  //session.PostURLEncode("http://localhost:8080/", "a=Hello#!&b=1", 13);
-
   // get http return code..
   printf("[%s:%d]\n", session.GetURL().c_str(), session.GetReturnCode());
 
@@ -79,6 +76,17 @@ int main(int argc, char* argv[])
   // get cookies in prased cookie list..
   printf("%s\n", session.GetCookie("HTTP_REFERER").c_str());
   printf("%s\n", session.GetCookies().c_str());
+
+  // new query..
+  session.RefreshHTTPHeader(); // reload from header file..
+
+  // set custom header..
+  session.SetHTTPHeader("Referer", "http://localhost:8080/index.html");
+  // curl POST method --url option..
+  session.PostURLEncode("http://localhost:8080/", "a=Hello#!&b=1", 13);
+
+  // print status..
+  printf("[%s:%d]\n", session.GetURL().c_str(), session.GetReturnCode());
 
   pause();
   return 0;
