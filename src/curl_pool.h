@@ -231,6 +231,9 @@ public:
   // curl --data-urlencode @filename
   int       PostURLEncode(const char* szURL, string filename);
 
+  // internal cookie list dump..
+  void      DebugCookies();
+  
 private:
   void      Release();
   int       PrepareOption(CURL* curl);
@@ -244,7 +247,7 @@ private:
   int       QueryURL(CURL* curl, FILE* pfile = NULL);
   int       LoadBodyFile();
   int       CheckCookie(string key);
-  void      DebugCookies();
+
 
   RETDATA   m_Data;
   RETDATA   m_Header;
