@@ -45,7 +45,7 @@ private:
   {
       string key[7];
 
-      istringstream ss(headers);
+      istringstream ss(line);
       string el;
       while (getline(ss, el, ';'))
       {
@@ -63,7 +63,7 @@ private:
             key[2] = el;
           }
           else if (arrs.at(0) == "expires" ||
-                   arra.at(0) == "Expires")
+                   arrs.at(0) == "Expires")
           {
             key[3] = el;
           }
@@ -105,7 +105,7 @@ private:
                     string httponly,
                     string secure,
                     string samesite,
-                    string partition)
+                    int partition)
   {
     m_keyvalue = key;
     m_path = path;
