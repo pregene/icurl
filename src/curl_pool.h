@@ -29,6 +29,117 @@ struct POSTDATA {
   size_t sizeleft;
 };
 
+class Cookies
+{
+public:
+  Cookies() {m_partition = 0;}
+  Cookies(string line)
+  {
+    m_partition = 0;
+    ParseLine(line);
+  }
+  ~Cookies() {}
+
+private:
+  void  ParseLine(string line)
+  {
+      string key[7];
+
+      istringstream ss(headers);
+      string el;
+      while (getline(ss, el, ';'))
+      {
+        vector<string> arrs = splitstring(el, '=');
+        if (arrs.size() > 0)
+        {
+          if (arrs.at(0) == "path" ||
+              arrs.at(0) == "Path")
+          {
+            key[1] = el;
+          }
+          else if (arrs.at(0) == "domain" ||
+                   arrs.at(0) == "Domain")
+          {
+            key[2] = el;
+          }
+          else if (arrs.at(0) == "expires" ||
+                   arra.at(0) == "Expires")
+          {
+            key[3] = el;
+          }
+          else if (arrs.at(0) == "HttpOnly")
+          {
+            key[4] = el;
+          }
+          else if (arrs.at(0) == "SameSite")
+          {
+            key[5] = el;
+          }
+          else if (arrs.at(0) == "secure")
+          {
+            key[6] = el;
+          }
+          else
+          {
+            key[0] = el;
+            m_key = arrs.at(0);
+            if (arrs.size() > 1)
+              m_value = arrs.at(1);
+          }
+        }
+      }
+      SetField( key[0],
+                key[1],
+                key[2],
+                key[3],
+                key[4],
+                key[5],
+                key[6],
+                key[2].empty() ? 1 : 0);
+  }
+
+  void SetField (   string key,
+                    string path,
+                    string domain,
+                    string expire,
+                    string httponly,
+                    string secure,
+                    string samesite,
+                    string partition)
+  {
+    m_keyvalue = key;
+    m_path = path;
+    m_domain = domain;
+    m_expire = expire;
+    m_http_only = httponly;
+    m_secure = secure;
+    m_samsite = samesite;
+    m_partition = partition;
+  }
+
+public:
+  string GetKeyValue()  {return m_keyvalue;}
+  string GetKey()       {return m_key;}
+  string GetValue()     {return m_value;}
+  string GetDomain()    {return m_domain;}
+  string GetExpire()    {return m_expire;}
+  string GetHttpOnly()  {return m_http_only;}
+  string GetSecure()    {return m_secure;}
+  int    GetPartition()  {return m_partition;}
+
+private:
+  string m_key;
+  string m_value;
+  string m_keyvalue;
+  string m_path;
+  string m_domain;
+  string m_expire;
+  string m_http_only;
+  string m_secure;
+  string m_samsite;
+  int    m_partition;
+};
+
 class CURLSession
 {
 public:
@@ -61,6 +172,10 @@ public:
 
   // HTTP protocol methods..
   int       SetHTTPHeader(string key, string value);
+
+  // get cookie..
+  string    GetJARCookie(string key);
+  string    GetJARCookies();
 
   // method..
   int       OpenURL(const char* szURL);
@@ -100,7 +215,13 @@ private:
   map<string, string> m_arr_headers;
   map<string, string> m_res_headers;
 
+  // cookie error fix..
+  list<Cookies> m_arr_cookies;
+
+  // output file pointer of body
   FILE*     m_pfile;
+
+  // a pointer of http header list
   struct curl_slist *m_phl;
 
   // response

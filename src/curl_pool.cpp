@@ -467,7 +467,6 @@ int CURLSession::ParseHeader()
       if (arrs.size() == 2)
       {
         m_res_headers[trim(arrs.at(0))] = trim(arrs.at(1));
-        //m_res_headers.insert(pair<string,string>(trim(arrs.at(0)), trim(arrs.at(1))));
       }
       else
       {
@@ -478,8 +477,13 @@ int CURLSession::ParseHeader()
             value += ":";
           value += trim(arrs.at(i));
         }
-        //m_res_headers.insert(pair<string, string>(trim(arrs.at(0)), value));
         m_res_headers[trim(arrs.at(0))] = value;
+      }
+
+      // Set-Cookies
+      if (arrs.size() > 1 && arrs.at(0) == "Set-Cookie")
+      {
+
       }
     }
   }
@@ -489,4 +493,52 @@ int CURLSession::ParseHeader()
 string    CURLSession::GetHTTPHeader(string key)
 {
   return m_res_headers[key];
+}
+
+string    CURLSession::GetJARCookie(string key)
+{
+  string ret;
+  if (!m_cookie.empty())
+  {
+    ifstream file;
+    file.open(m_cookie);
+    string el;
+    while (getline(file, el))
+    {
+      vector<string> arrs = splitstring(el, '\t');
+      if (arrs.size() > 5 && arrs.at(5) == key)
+      {
+        ret = arrs.at(5);
+        ret += "=";
+        if (arrs.size() > 6)
+          ret += arrs.at(6);
+        break;
+      }
+    }
+  }
+  return ret;
+}
+
+string    CURLSession::GetJARCookies()
+{
+  string ret;
+  if (!m_cookie.empty())
+  {
+    ifstream file;
+    file.open(m_cookie);
+    string el;
+    while (getline(file, el))
+    {
+      vector<string> arrs = splitstring(el, '\t');
+      if (arrs.size() > 5)
+      {
+        ret += arrs.at(5);
+        ret += "=";
+        if (arrs.size() > 6)
+          ret += arrs.at(6);
+        ret += "; ";
+      }
+    }
+  }
+  return ret;
 }
