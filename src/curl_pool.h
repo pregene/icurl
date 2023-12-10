@@ -125,7 +125,7 @@ public:
   string GetExpire()    {return m_expire;}
   string GetHttpOnly()  {return m_http_only;}
   string GetSecure()    {return m_secure;}
-  int    GetPartition()  {return m_partition;}
+  int    GetPartition() {return m_partition;}
 
 private:
   string m_key;
