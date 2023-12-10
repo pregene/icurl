@@ -575,3 +575,49 @@ string    CURLSession::GetJARCookies()
   }
   return ret;
 }
+
+int       CURLSession::PostURLEncode(const char* szURL, string filename)
+{
+  string data;
+  ifstream file;
+  file.open(filename);
+
+  file.seekg (0, file.end);
+  int length = file.tellg();
+  file.seekg (0, file.beg);
+
+  data.resize(length + 1);
+  file.read ((char*)data.c_str(), length);
+  file.close();
+
+  return PostURLEncode(szURL, data.c_str(), data.size());
+}
+
+int       CURLSession::PostURLEncode(const char* szURL, const char* postData, int postDataLen)
+{
+  string data;
+  vector<string> params = splitstring(postData, '&');
+  for (vector<string>::iterator it = params.begin(); it != params.end(); ++it)
+  {
+    if (!data.empty())
+      data += "&";
+    vector<string> arrs = splitstring(*it, '=');
+    if (arrs.size() > 1)
+    {
+      data += arrs.at(0);
+      data += "=";
+      char* urlencode = curl_easy_escape(m_curl, arrs.at(1).c_str(), arrs.at(1).size());
+      if (urlencode)
+      {
+        data += urlencode;
+        curl_free(urlencode);
+      }
+    }
+    else
+    {
+      data += arrs.at(0);
+      data += "=";
+    }
+  }
+  return PostURL(szURL, data.c_str(), data.size());
+}

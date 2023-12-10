@@ -181,6 +181,8 @@ public:
   int       OpenURL(const char* szURL);
   int       PostURL(const char* szURL, const char* postData, int postDataLen);
   int       PostURL(const char* szURL, string filename);
+  int       PostURLEncode(const char* szURL, const char* postData, int postDataLen);
+  int       PostURLEncode(const char* szURL, string filename);
 
 private:
   void      Release();

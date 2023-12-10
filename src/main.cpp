@@ -53,16 +53,16 @@ int main(int argc, char* argv[])
   //printf("%s\n", session.GetJARCookies().c_str());
   //printf("%s\n", session.GetBody().c_str());
 
-  //session.SetWriteFile("temp/2.res");
-  //session.SetHeaderFile("data/linux_header");
-  //session.SetCookieFile("data/cookies.txt");
-  //session.PostURL("http://localhost:8080/", "a=Hello#!", 9);
+  session.SetWriteFile("temp/2.res");
+  session.SetHeaderFile("data/linux_header");
+  session.SetCookieFile("data/cookies.txt");
+  session.PostURLEncode("http://localhost:8080/", "a=Hello#!&b=1", 13);
   //session.PostURL("http://localhost:8080/", "post.data");
 
-  //printf("[%s:%d]\n", session.GetURL().c_str(), session.GetReturnCode());
+  printf("[%s:%d]\n", session.GetURL().c_str(), session.GetReturnCode());
 
   //printf("%s\n", session.GetHTTPHeader("Content-Type").c_str());
-  //printf("[HEADER]\n%s", session.GetHeaderString().c_str());
+  printf("[HEADER]\n%s", session.GetHeaderString().c_str());
 
   pause();
   return 0;
