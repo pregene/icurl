@@ -179,7 +179,7 @@ public:
 
   // method..
   int       OpenURL(const char* szURL);
-  int       PostURL(const char* szURL, const char* postData = NULL, int postDataLen = 0);
+  int       PostURL(const char* szURL, const char* postData, int postDataLen);
   int       PostURL(const char* szURL, string filename);
 
 private:
@@ -190,8 +190,8 @@ private:
   int       SetURL(const char* szURL);
   int       LoadHeader(string filename);
   int       OpenURL(CURL* curl, const char* szURL);
-  int       PostURL(CURL* curl, const char* szURL, const char* postData = NULL, int postDataLen = 0);
-  int       PostURL(CURL* curl, const char* szURL, string filename);
+  int       PostURL(CURL* curl, const char* szURL, const char* postData, int postDataLen);
+  //int       PostURL(CURL* curl, const char* szURL, string filename); // deplicated..
   int       QueryURL(CURL* curl, FILE* pfile = NULL);
   int       LoadBodyFile();
 

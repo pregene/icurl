@@ -301,37 +301,39 @@ int       CURLSession::PrepareOption(CURL* curl)
 
 int       CURLSession::PostURL(const char* szURL, string filename)
 {
-  return PostURL(m_curl, szURL, filename);
+  string data;
+  ifstream file;
+  file.open(filename);
+
+  file.seekg (0, file.end);
+  int length = file.tellg();
+  file.seekg (0, file.beg);
+
+  data.resize(length + 1);
+  file.read ((char*)data.c_str(), length);
+  file.close();
+
+  return PostURL(szURL, data.c_str(), data.size());
 }
 
+/*
 int       CURLSession::PostURL(CURL* curl, const char* szURL, string filename)
 {
-  FILE* pfile = NULL;
+  string data;
+  ifstream file;
+  file.open(filename);
 
-  if (!curl || !szURL)
-    return -1; // curl handler error..
-               // should call curl_global_init(CURL_GLOBAL_DEFAULT) before this.
+  file.seekg (0, file.end);
+  int length = file.tellg();
+  file.seekg (0, file.beg);
 
-  Release();
-  //curl_easy_setopt(curl, CURLOPT_URL, szURL);
-  SetURL(szURL);
+  data.resize(length + 1);
+  file.read ((char*)data.c_str(), length);
+  file.close();
 
-  // set POST..
-  curl_easy_setopt(curl, CURLOPT_POST, 1L);
-
-  /*  connection configuration */
-  PrepareOption(curl);
-
-  pfile = fopen(filename.c_str(), "rb");
-  if (!pfile)
-    return -1;
-
-  // set post data..
-  curl_easy_setopt(curl, CURLOPT_READDATA, pfile);
-
-  return QueryURL(curl, pfile);
+  return PostURL(curl, szURL, data.c_str(), data.size());
 }
-
+*/
 int CURLSession::PostURL( CURL* curl,
                           const char* szURL, const char* postData, int postDataLen)
 {
@@ -370,6 +372,34 @@ int CURLSession::PostURL( CURL* curl,
   curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)data.sizeleft);
 
   return QueryURL(curl);
+}
+
+static void
+print_cookies(CURL *curl)
+{
+  CURLcode res;
+  struct curl_slist *cookies;
+  struct curl_slist *nc;
+  int i;
+
+  printf("Cookies, curl knows:\n");
+  res = curl_easy_getinfo(curl, CURLINFO_COOKIELIST, &cookies);
+  if(res != CURLE_OK) {
+    fprintf(stderr, "Curl curl_easy_getinfo failed: %s\n",
+            curl_easy_strerror(res));
+    exit(1);
+  }
+  nc = cookies;
+  i = 1;
+  while(nc) {
+    printf("[%d]: %s\n", i, nc->data);
+    nc = nc->next;
+    i++;
+  }
+  if(i == 1) {
+    printf("(none)\n");
+  }
+  curl_slist_free_all(cookies);
 }
 
 int       CURLSession::QueryURL(CURL* curl, FILE* pfile)
@@ -423,6 +453,9 @@ int       CURLSession::QueryURL(CURL* curl, FILE* pfile)
     m_body = m_Data.response;
   }
 
+  /* print cookies */
+  print_cookies(curl);
+
   /* post data file clear */
   if (pfile)
     fclose(pfile);
@@ -463,6 +496,7 @@ int CURLSession::ParseHeader()
   {
     if (el.find(":") != string::npos)
     {
+      string value;
       vector<string> arrs = splitstring(el, ':');
       if (arrs.size() == 2)
       {
@@ -470,7 +504,6 @@ int CURLSession::ParseHeader()
       }
       else
       {
-        string value;
         for (int i=1; i < arrs.size(); i++)
         {
           if (i != 1)
