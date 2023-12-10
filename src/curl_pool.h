@@ -179,9 +179,13 @@ public:
 
   // method..
   int       OpenURL(const char* szURL);
+  // curl --data "abc=abc"
   int       PostURL(const char* szURL, const char* postData, int postDataLen);
+  // curl --data @filename
   int       PostURL(const char* szURL, string filename);
+  // curl --data-urlencode "abc=abc#!"
   int       PostURLEncode(const char* szURL, const char* postData, int postDataLen);
+  // curl --data-urlencode @filename
   int       PostURLEncode(const char* szURL, string filename);
 
 private:
