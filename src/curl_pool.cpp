@@ -709,3 +709,9 @@ void CURLSession::DebugCookies()
     cout << it->DumpString() << endl;
   }
 }
+
+void CURLSession::DebugJARCookies()
+{
+  if (m_curl)
+    print_cookies(m_curl);
+}

@@ -233,7 +233,9 @@ public:
 
   // internal cookie list dump..
   void      DebugCookies();
-  
+  // curl cookie list dump..
+  void      DebugJARCookies();
+
 private:
   void      Release();
   int       PrepareOption(CURL* curl);
