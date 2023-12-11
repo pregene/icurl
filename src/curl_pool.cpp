@@ -387,7 +387,7 @@ print_cookies(CURL *curl)
   struct curl_slist *nc;
   int i;
 
-  printf("Cookies, curl knows:\n");
+  printf("=== curl cookie stuff ===\n");
   res = curl_easy_getinfo(curl, CURLINFO_COOKIELIST, &cookies);
   if(res != CURLE_OK) {
     fprintf(stderr, "Curl curl_easy_getinfo failed: %s\n",
