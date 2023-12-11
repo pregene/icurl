@@ -225,7 +225,6 @@ public:
     file.open(filename);
     while (getline(file, el, '&'))
     {
-      cout << el << endl;
       vector<string> arrs = splitstring(el, '=');
       if (arrs.size() == 2)
       {
@@ -247,9 +246,25 @@ public:
 
     file.open(filename);
     string data = GetDataString();
-    file.write(data);
+    file.write((char*)data.c_str(), data.size());
     file.close();
     return 0;
+  }
+
+  string GetDataString()
+  {
+    string ret;
+    for (vector<string>::iterator it = m_fields.begin(); it != m_fields.end(); ++it)
+    {
+      if (!ret.empty())
+      {
+        ret += "&";
+      }
+      ret += *it;
+      ret += "=";
+      ret += m_arr_data[*it];
+    }
+    return ret;
   }
 
 private:
