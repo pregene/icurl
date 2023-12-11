@@ -407,6 +407,27 @@ print_cookies(CURL *curl)
   curl_slist_free_all(cookies);
 }
 
+static int check_cookies(CURL *curl, struct curl_slist *cookies, const char* key)
+{
+  int ret = 0;
+  struct curl_slist *nc;
+  int i;
+
+  nc = cookies;
+  i = 1;
+  while(nc) {
+    //printf("[%d]: %s\n", i, nc->data);
+    if (strstr(nc->data, key))
+    {
+      ret = 1;
+      break;
+    }
+    nc = nc->next;
+    i++;
+  }
+  return ret;
+}
+
 int       CURLSession::QueryURL(CURL* curl, FILE* pfile)
 {
   CURLcode res;
@@ -435,6 +456,9 @@ int       CURLSession::QueryURL(CURL* curl, FILE* pfile)
   /* redirect option */
   if (m_redirect)
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+
+  /* set personal cookie */
+  PrepareCookies(curl);
 
   res = curl_easy_perform(curl);
 
@@ -719,4 +743,34 @@ void CURLSession::DebugJARCookies()
 {
   if (m_curl)
     print_cookies(m_curl);
+}
+
+void CURLSession::PrepareCookies(CURL* curl)
+{
+  CURLcode res;
+  struct curl_slist *cookies;
+  res = curl_easy_getinfo(curl, CURLINFO_COOKIELIST, &cookies);
+  if (res == CURLE_OK)
+  {
+    string ret;
+    for (list<Cookie>::iterator it = m_arr_cookies.begin(); it != m_arr_cookies.end(); ++it)
+    {
+      if (check_cookies(curl, cookies, it->GetKey().c_str()) == 0)
+      {
+          if (!ret.empty())
+          {
+            ret += "; ";
+          }
+          ret += it->GetKeyValue();
+      }
+    }
+    if (!ret.empty())
+      curl_easy_setopt(curl, CURLOPT_COOKIE, ret.c_str());
+  }
+  else
+  {
+    // all setting..
+    curl_easy_setopt(curl, CURLOPT_COOKIE, GetCookies().c_str());
+  }
+  curl_slist_free_all(cookies);
 }

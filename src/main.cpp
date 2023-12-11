@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
   printf("[HEADER]\n%s", session.GetHeaderString().c_str());
 
   // print body..
-  printf("%s\n", session.GetBody().c_str());
+  //printf("%s\n", session.GetBody().c_str());
 
   // debug Cookies..
   session.DebugJARCookies();  // in curl session..
@@ -48,9 +48,18 @@ int main(int argc, char* argv[])
   printf("%s\n", session.GetCookie("HTTP_REFERER").c_str());
   printf("%s\n", session.GetCookies().c_str());
 
-  // new query..
+  // new query for custrom cookie
   session.RefreshHTTPHeader(); // reload from header file..
 
+  session.SetCookie("PCID", "");
+  session.SetCookie("_PCID", "1234");
+  session.OpenURL("http://ticket.yes24.com/New/Main.aspx");
+  // print status..
+  printf("[%s:%d]\n", session.GetURL().c_str(), session.GetReturnCode());
+
+
+  // new query for custrom cookie
+  session.RefreshHTTPHeader(); // reload from header file..
   // set custom header..
   // curl -H option..
   session.SetHTTPHeader("Referer", "http://localhost:8080/index.html");

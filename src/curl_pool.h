@@ -250,6 +250,7 @@ private:
   int       QueryURL(CURL* curl, FILE* pfile = NULL);
   int       LoadBodyFile();
   int       CheckCookie(string key);
+  void      PrepareCookies(CURL* curl);
 
 
   RETDATA   m_Data;
