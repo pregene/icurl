@@ -1,5 +1,4 @@
 #include "curl_pool.h"
-#include <fstream>
 
 static size_t pool_read_callback(char *dest, size_t size, size_t nmemb, void *userp)
 {
@@ -255,6 +254,7 @@ int       CURLSession::LoadHeader(string filename)
     }
     //cout << el << endl;
   }
+  file.close();
   return 0;
 }
 
@@ -545,6 +545,7 @@ string    CURLSession::GetJARCookie(string key)
         break;
       }
     }
+    file.close();
   }
   return ret;
 }
@@ -569,6 +570,7 @@ string    CURLSession::GetJARCookies()
         ret += "; ";
       }
     }
+    file.close();
   }
   return ret;
 }

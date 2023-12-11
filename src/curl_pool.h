@@ -4,6 +4,7 @@
 #include "project.h"
 #include <curl/curl.h>
 #include <map>
+#include <fstream>
 /*
 #include <stdio.h>
 #include <string.h>
@@ -208,6 +209,47 @@ public:
   int GetFieldSize()
   {
     return m_fields.size();
+  }
+
+  int LoadFile(string filename)
+  {
+    ifstream file;
+    string el;
+
+    if (file_exist(filename) == false)
+      return -1;
+
+    m_arr_data.clear();
+    m_fields.clear();
+
+    file.open(filename);
+    while (getline(file, el, '&'))
+    {
+      cout << el << endl;
+      vector<string> arrs = splitstring(el, '=');
+      if (arrs.size() == 2)
+      {
+        m_arr_data[arrs.at(0)] = arrs.at(1);
+      }
+      else
+      {
+        m_arr_data[arrs.at(0)] = "";
+      }
+      m_fields.push_back(arrs.at(0));
+    }
+    file.close();
+    return 0;
+  }
+
+  int SaveFile(string filename)
+  {
+    ofstream file;
+
+    file.open(filename);
+    string data = GetDataString();
+    file.write(data);
+    file.close();
+    return 0;
   }
 
 private:
