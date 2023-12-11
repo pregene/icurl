@@ -185,7 +185,8 @@ public:
 
   void SetData(string key, string value)
   {
-    if (m_arr_data.contains(key) == false)
+    map<string, string>::iterator search = m_arr_data.find(key);
+    if (search == m_arr_data.end())
     {
       m_fields.push_back(key);
     }
