@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
   printf("%s\n", session.GetJARCookie("HTTP_REFERER").c_str());
   printf("%s\n", session.GetCookies().c_str());
 
-  // get cookies in prased cookie list..
+  // get cookies in parsed cookie list..
   printf("%s\n", session.GetCookie("HTTP_REFERER").c_str());
   printf("%s\n", session.GetCookies().c_str());
 
