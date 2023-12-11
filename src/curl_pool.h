@@ -178,6 +178,42 @@ private:
   int    m_partition;
 };
 
+class HTTPFormData {
+public:
+  HTTPFormData() {}
+  ~HTTPFormData() {}
+
+  void SetData(string key, string value)
+  {
+    if (m_arr_data.contains(key) == false)
+    {
+      m_fields.push_back(key);
+    }
+    m_arr_data[key] = value;
+  }
+
+  string GetData(string key)
+  {
+    return m_arr_data[key];
+  }
+
+  string GetKeyName(unsigned int index)
+  {
+    if (index < m_fields.size())
+      return m_fields.at(index);
+    return "";
+  }
+
+  int GetFieldSize()
+  {
+    return m_fields.size();
+  }
+
+private:
+  map<string, string> m_arr_data;
+  vector<string>      m_fields;
+};
+
 class CURLSession
 {
 public:
