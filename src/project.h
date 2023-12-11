@@ -33,6 +33,8 @@ std::string trim(const std::string &s);
 std::vector<std::string> splitstring(std::string line, char ch);
 bool file_exist (const std::string& name);
 std::string strformat(const char* format, ...);
+std::string getcurtime();
+std::string getseconds();
 
 #define CA_SUCCESS  0
 #define CA_FAIL    -1

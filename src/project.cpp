@@ -49,3 +49,30 @@ std::string strformat(const char* format, ...)
   va_end(arg_ptr);
   return ret.c_str();
 }
+
+std::string getcurtime()
+{
+  std::string ret;
+  struct tm* t = NULL;
+  time_t now;
+  time(&now);
+  t = localtime(&now);
+  ret = strformat("%04d-%02d-%02d %02d:%02d:%02d",
+                      t->tm_year + 1900,
+                      t->tm_mon + 1,
+                      t->tm_mday,
+                      t->tm_hour,
+                      t->tm_min,
+                      t->tm_sec);
+  return ret;
+}
+
+std::string getseconds()
+{
+  std::string ret;
+  time_t now;
+  time(&now);
+
+  ret = strformat("%u", now);
+  return ret;
+}
