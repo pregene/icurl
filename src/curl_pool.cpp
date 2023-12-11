@@ -550,6 +550,29 @@ string    CURLSession::GetJARCookie(string key)
   return ret;
 }
 
+string    CURLSession::GetJARCookieValue(string key)
+{
+  string ret;
+  if (!m_cookie.empty())
+  {
+    ifstream file;
+    file.open(m_cookie);
+    string el;
+    while (getline(file, el))
+    {
+      vector<string> arrs = splitstring(el, '\t');
+      if (arrs.size() > 5 && arrs.at(5) == key)
+      {
+        if (arrs.size() > 6)
+          ret = arrs.at(6);
+        break;
+      }
+    }
+    file.close();
+  }
+  return ret;
+}
+
 string    CURLSession::GetJARCookies()
 {
   string ret;
@@ -698,6 +721,21 @@ string    CURLSession::GetCookie(string key)
   }
   return ret;
 }
+
+string    CURLSession::GetCookieValue(string key)
+{
+  string ret;
+  for (list<Cookie>::iterator it = m_arr_cookies.begin(); it != m_arr_cookies.end(); ++it)
+  {
+    if (it->GetKey() == key)
+    {
+      ret = it->GetValue();
+      break;
+    }
+  }
+  return ret;
+}
+
 string    CURLSession::GetCookies()
 {
   string ret;

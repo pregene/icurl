@@ -308,10 +308,12 @@ public:
 
   // get cookie from the cookie list of curl.
   string    GetJARCookie(string key);
+  string    GetJARCookieValue(string key);
   string    GetJARCookies();
 
   // get cookie from own cookie stuff..
   string    GetCookie(string key);
+  string    GetCookieValue(string key);
   string    GetCookies();
   void      SetCookie(string key, string value);
 
