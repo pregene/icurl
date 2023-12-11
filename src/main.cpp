@@ -52,6 +52,7 @@ int main(int argc, char* argv[])
   session.RefreshHTTPHeader(); // reload from header file..
 
   // set custom header..
+  // curl -H option..
   session.SetHTTPHeader("Referer", "http://localhost:8080/index.html");
   // curl POST method --url option..
   session.PostURLEncode("http://localhost:8080/", "a=Hello#!&b=1", 13);
