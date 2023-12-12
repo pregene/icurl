@@ -338,6 +338,9 @@ public:
   // curl cookie list dump..
   void      DebugJARCookies();
 
+  // URLDecode..
+  string    URLDecode(string str);
+
 private:
   void      Release();
   int       PrepareOption(CURL* curl);

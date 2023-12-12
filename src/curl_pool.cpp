@@ -828,3 +828,16 @@ void CURLSession::PrepareCookies(CURL* curl)
   }
   curl_slist_free_all(cookies);
 }
+
+string    CURLSession::URLDecode(string str)
+{
+  int decodelen;
+  string ret;
+  char*  decoded = curl_easy_unescape(m_curl, str.c_str(), str.size(), &decodelen);
+  if (decoded)
+  {
+    ret = decoded;
+    curl_free(decoded);
+  }
+  return ret;
+}
