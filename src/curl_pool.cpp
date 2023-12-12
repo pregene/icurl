@@ -218,6 +218,8 @@ int CURLSession::OpenURL(CURL* curl, const char* szURL)
   //curl_easy_setopt(curl, CURLOPT_URL, szURL);
   SetURL(szURL);
 
+  curl_easy_setopt(curl, CURLOPT_POST, 0L);
+
   /*  connection configuration */
   PrepareOption(curl);
 
@@ -349,6 +351,7 @@ int       CURLSession::PostURL(CURL* curl, const char* szURL, string filename)
 int CURLSession::PostURL( CURL* curl,
                           const char* szURL, const char* postData, int postDataLen)
 {
+  SEEKDATA seek_data;
   POSTDATA data;
 
   if (!curl || !szURL)
@@ -367,6 +370,10 @@ int CURLSession::PostURL( CURL* curl,
 
   // set READ function..
   curl_easy_setopt(curl, CURLOPT_READFUNCTION, pool_read_callback);
+
+  /* seek callback */
+  curl_easy_setopt(curl, CURLOPT_SEEKFUNCTION, pool_seek_callback);
+  curl_easy_setopt(curl, CURLOPT_SEEKDATA, &seek_data);
 
   if (postData && postDataLen > 0)
   {
@@ -437,7 +444,6 @@ static int check_cookies(CURL *curl, struct curl_slist *cookies, const char* key
 
 int       CURLSession::QueryURL(CURL* curl, FILE* pfile)
 {
-  SEEKDATA seek_data;
   CURLcode res;
   /* return */
   if (m_body_file.empty())
@@ -449,10 +455,6 @@ int       CURLSession::QueryURL(CURL* curl, FILE* pfile)
   /* header callback */
   curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, pool_header_callback);
   curl_easy_setopt(curl, CURLOPT_HEADERDATA, (void*) this);
-
-  /* seek callback */
-  curl_easy_setopt(curl, CURLOPT_SEEKFUNCTION, pool_seek_callback);
-  curl_easy_setopt(curl, CURLOPT_SEEKDATA, &seek_data);
 
   /* https */
   if (m_verifier == 0)
