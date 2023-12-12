@@ -697,7 +697,6 @@ int CURLSession::ParseHeader()
       // Set-Cookies
       if (arrs.size() > 1 && arrs.at(0) == "Set-Cookie")
       {
-        cout << value << endl;
         vector<string> lines = splitstring(value, '=');
         if (CheckCookie(lines.at(0)))
         {
