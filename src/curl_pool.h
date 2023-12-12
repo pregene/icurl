@@ -30,6 +30,11 @@ struct POSTDATA {
   size_t sizeleft;
 };
 
+struct SEEKDATA {
+  int our_fd;
+};
+
+
 class Cookie
 {
 public:

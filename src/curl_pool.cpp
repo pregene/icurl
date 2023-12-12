@@ -1,5 +1,12 @@
 #include "curl_pool.h"
 
+static int pool_seek_callback(void *clientp, curl_off_t offset, int origin)
+{
+  struct SEEKDATA *d = (struct SEEKDATA *)clientp;
+  lseek(d->our_fd, offset, origin);
+  return CURL_SEEKFUNC_OK;
+}
+
 static size_t pool_read_callback(char *dest, size_t size, size_t nmemb, void *userp)
 {
   struct POSTDATA *wt = (struct POSTDATA *)userp;
@@ -430,6 +437,7 @@ static int check_cookies(CURL *curl, struct curl_slist *cookies, const char* key
 
 int       CURLSession::QueryURL(CURL* curl, FILE* pfile)
 {
+  SEEKDATA seek_data;
   CURLcode res;
   /* return */
   if (m_body_file.empty())
@@ -441,6 +449,10 @@ int       CURLSession::QueryURL(CURL* curl, FILE* pfile)
   /* header callback */
   curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, pool_header_callback);
   curl_easy_setopt(curl, CURLOPT_HEADERDATA, (void*) this);
+
+  /* seek callback */
+  curl_easy_setopt(curl, CURLOPT_SEEKFUNCTION, pool_seek_callback);
+  curl_easy_setopt(curl, CURLOPT_SEEKDATA, &seek_data);
 
   /* https */
   if (m_verifier == 0)
