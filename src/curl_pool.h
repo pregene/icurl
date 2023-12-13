@@ -321,6 +321,7 @@ public:
   string    GetCookieValue(string key);
   string    GetCookies();
   void      SetCookie(string key, string value);
+  void      EnableCookie(int option);
 
   // method..
   int       OpenURL(const char* szURL);
@@ -365,6 +366,7 @@ private:
 
   int       m_nRetCode;
   // query option..
+  int       m_icookie;
   int       m_redirect;
   int       m_verbose;
   int       m_verifier;

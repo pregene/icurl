@@ -70,6 +70,7 @@ CURLSession::CURLSession() {
   m_verbose = 0;
   m_pfile = 0;
   m_redirect = 0;
+  m_icookie = 0;
   m_phl = 0;
   memset(&m_Data, 0, sizeof(RETDATA));
   memset(&m_Header, 0, sizeof(RETDATA));
@@ -109,6 +110,7 @@ void    CURLSession::Close()
 
   m_verbose = 0;
   m_redirect = 0;
+  m_icookie = 0;
 
   m_url.clear();
   m_cookie.clear();
@@ -180,6 +182,11 @@ int       CURLSession::SetRedirect(int option)
 {
   m_redirect = option;
   return 0;
+}
+
+void      CURLSession::EnableCookie(int option)
+{
+  m_icookie = option;
 }
 
 // url method..
@@ -270,6 +277,7 @@ int       CURLSession::LoadHeader(string filename)
 void      CURLSession::RefreshHTTPHeader()
 {
   LoadHeader(m_header);
+  m_icookie = 0;
 }
 
 int       CURLSession::SetHTTPHeader(string key, string value)
@@ -472,7 +480,8 @@ int       CURLSession::QueryURL(CURL* curl, FILE* pfile)
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 
   /* set personal cookie */
-  PrepareCookies(curl);
+  if (m_icookie)
+    PrepareCookies(curl);
 
   res = curl_easy_perform(curl);
 
