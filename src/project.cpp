@@ -76,3 +76,8 @@ std::string getseconds()
   ret = strformat("%u", now);
   return ret;
 }
+
+bool isnumber(const std::string& s)
+{
+  return s.find_first_not_of("0123456789") == string::npos;
+}

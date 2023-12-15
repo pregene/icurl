@@ -35,6 +35,7 @@ bool file_exist (const std::string& name);
 std::string strformat(const char* format, ...);
 std::string getcurtime();
 std::string getseconds();
+bool isnumber(const std::string& s);
 
 #define CA_SUCCESS  0
 #define CA_FAIL    -1
